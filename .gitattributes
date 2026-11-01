@@ -1,0 +1,6 @@
+# fine riga coerenti: lo script gradlew deve restare con LF anche se si clona da Windows
+* text=auto
+gradlew text eol=lf
+*.bat text eol=crlf
+*.jar binary
+*.png binary

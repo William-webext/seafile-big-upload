@@ -1,0 +1,19 @@
+# build e strumenti
+*.iml
+.gradle/
+.kotlin/
+build/
+.idea/
+captures/
+local.properties
+
+# segreti e dati personali: MAI nel repository
+*.jks
+*.keystore
+key.properties
+backup/
+NOTE-PRIVATE.md
+
+# pacchetti compilati (si pubblicano come "Release", non nel codice)
+*.apk
+*.aab

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.BigUpload" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#FFB74D</item>
+        <item name="colorOnPrimary">#3E2300</item>
+        <item name="colorPrimaryContainer">#5C3600</item>
+        <item name="colorOnPrimaryContainer">#FFE0B2</item>
+        <item name="colorSecondary">#E1C28F</item>
+        <item name="colorOnSecondary">#3F2D05</item>
+        <item name="colorSecondaryContainer">#58431B</item>
+        <item name="colorOnSecondaryContainer">#F5E3C8</item>
+        <item name="colorError">#FFB4AB</item>
+        <item name="android:colorBackground">#141311</item>
+        <item name="colorSurface">#141311</item>
+        <item name="colorOnSurface">#E8E2DA</item>
+        <item name="colorSurfaceVariant">#2B2824</item>
+        <item name="colorOnSurfaceVariant">#CFC6BB</item>
+        <item name="colorOutline">#988F84</item>
+        <item name="colorOutlineVariant">#4A453F</item>
+        <item name="colorSurfaceContainerLowest">#0F0E0C</item>
+        <item name="colorSurfaceContainerLow">#1C1A17</item>
+        <item name="colorSurfaceContainer">#211F1C</item>
+        <item name="colorSurfaceContainerHigh">#2B2824</item>
+        <item name="colorSurfaceContainerHighest">#36332F</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>

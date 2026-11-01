@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colori ispirati all'app Seafile originale: arancione come accento, sfondi neutri caldi. -->
+    <style name="Theme.BigUpload" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">#E07B00</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#FFE0B2</item>
+        <item name="colorOnPrimaryContainer">#4A2800</item>
+        <item name="colorSecondary">#8A6A3C</item>
+        <item name="colorOnSecondary">#FFFFFF</item>
+        <item name="colorSecondaryContainer">#F5E3C8</item>
+        <item name="colorOnSecondaryContainer">#2B1D06</item>
+        <item name="colorError">#BA1A1A</item>
+        <item name="android:colorBackground">#FFFFFF</item>
+        <item name="colorSurface">#FFFFFF</item>
+        <item name="colorOnSurface">#1C1B1A</item>
+        <item name="colorSurfaceVariant">#F3EFEA</item>
+        <item name="colorOnSurfaceVariant">#5F5B55</item>
+        <item name="colorOutline">#8D8780</item>
+        <item name="colorOutlineVariant">#DDD7CF</item>
+        <item name="colorSurfaceContainerLowest">#FFFFFF</item>
+        <item name="colorSurfaceContainerLow">#F9F6F2</item>
+        <item name="colorSurfaceContainer">#F3EFEA</item>
+        <item name="colorSurfaceContainerHigh">#EDE8E2</item>
+        <item name="colorSurfaceContainerHighest">#E7E2DB</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>

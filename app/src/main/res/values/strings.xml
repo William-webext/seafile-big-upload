@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Default language: English. The Italian translation is in values-it/strings.xml. Both files must have the same keys. -->
+<resources>
+    <string name="app_name" translatable="false">Seafile Big Upload</string>
+    <string name="title_main">Photos and videos on Seafile</string>
+
+    <!-- status card -->
+    <string name="state_login_missing">Sign-in required</string>
+    <string name="state_login_missing_detail">Sign in below to get started.</string>
+    <string name="state_starting">Starting…</string>
+    <string name="state_starting_detail">The check is about to start. No need to press again.</string>
+    <string name="state_waiting_wifi">Waiting for Wi-Fi…</string>
+    <string name="state_waiting_wifi_detail">It will start by itself as soon as the phone connects to a Wi-Fi network.</string>
+    <string name="state_waiting_net">Waiting for a connection…</string>
+    <string name="state_waiting_net_detail">It will start by itself as soon as the phone is online.</string>
+    <string name="state_running">Working</string>
+    <string name="state_running_detail">You can close the app: it keeps going on its own.</string>
+    <string name="state_active">Active</string>
+    <string name="state_active_detail">New files are uploaded automatically: usually right away, and in any case %1$s.</string>
+    <string name="state_active_waiting">Active, rescheduling</string>
+    <string name="state_active_waiting_detail">Automatic upload is on: I am rescheduling it now.</string>
+    <string name="state_off">Automatic upload is off</string>
+    <string name="state_off_detail">Files are uploaded only when you press “Upload now”.</string>
+    <string name="last_check_nothing">Last check: %1$s — nothing new to upload</string>
+    <string name="last_upload">Last upload: %1$s — %2$d uploaded, %3$d errors</string>
+    <string name="last_run">Last run: %1$s — %2$d uploaded, %3$d errors</string>
+    <string name="no_run_yet">No run yet.</string>
+    <string name="progress_item">(%1$d/%2$d) %3$s\n%4$d%% — %5$s of %6$s</string>
+    <string name="phase_checking">Checking files…</string>
+    <string name="phase_list">Reading the file list from the server…</string>
+    <string name="phase_compare">Comparing with the server: %1$d of %2$d files</string>
+    <string name="phase_register">Reading the files on the phone…</string>
+    <string name="counters">%1$d already on the server · %2$d uploaded by this app · %3$d waiting</string>
+    <string name="errors_line">%1$d files to retry. Last error: %2$s</string>
+    <string name="btn_upload_now">Upload now</string>
+    <string name="btn_stop">Stop</string>
+    <string name="btn_list">File list</string>
+    <string name="date_format">MM/dd \'at\' HH:mm</string>
+    <string name="within_15m">within 15 minutes</string>
+    <string name="within_1h">within an hour</string>
+    <string name="within_6h">within 6 hours</string>
+    <string name="within_1d">within a day</string>
+    <string name="within_1w">within a week</string>
+    <string name="within_n">within %1$d minutes</string>
+
+    <!-- sections and rows -->
+    <string name="sec_upload">Upload</string>
+    <string name="row_auto">Automatic upload</string>
+    <string name="auto_signin_first">Sign in to Seafile first</string>
+    <string name="auto_on">On: new files are uploaded by themselves</string>
+    <string name="auto_off">Off: files are uploaded only with “Upload now”</string>
+    <string name="row_wifi">Wi-Fi only</string>
+    <string name="wifi_on">On mobile data nothing is uploaded</string>
+    <string name="wifi_off">Also uploads on mobile data (can use a lot of data)</string>
+    <string name="row_notify">Notify when finished</string>
+    <string name="notify_on">Tells you when files have been uploaded (errors are always reported)</string>
+    <string name="notify_off">Only tells you when something goes wrong</string>
+    <string name="row_freq">Safety check</string>
+    <string name="freq_summary">Checks %1$s whether anything needs uploading. An empty check costs very little battery. It is the longest delay before a file starts if the system does not notify the app. Tap to change.</string>
+    <string name="every_15m">every 15 minutes</string>
+    <string name="every_1h">every hour</string>
+    <string name="every_6h">every 6 hours</string>
+    <string name="every_1d">once a day</string>
+    <string name="every_1w">once a week</string>
+    <string name="every_n">every %1$d minutes</string>
+    <string name="freq_title">How often to check</string>
+    <string name="freq_opt_15m">Every 15 minutes</string>
+    <string name="freq_opt_1h">Every hour (recommended)</string>
+    <string name="freq_opt_6h">Every 6 hours</string>
+    <string name="freq_opt_1d">Once a day</string>
+    <string name="freq_opt_1w">Once a week</string>
+    <string name="freq_toast">Checking %1$s</string>
+
+    <string name="sec_what">What to upload</string>
+    <string name="row_types">File type</string>
+    <string name="types_videos">Videos only</string>
+    <string name="types_photos">Photos only</string>
+    <string name="types_both">Photos and videos</string>
+    <string name="types_title">What to upload</string>
+    <string name="types_photos_title">Upload photos too?</string>
+    <string name="types_photos_msg">The app compares the phone\'s photos with those already on the server and uploads only the missing ones. If there are many it can take time and data: better on Wi-Fi. If you also upload photos with the official Seafile app, files already there are not uploaded again.</string>
+    <string name="types_photos_yes">Yes, upload</string>
+    <string name="types_applied">Now uploading: %1$s. Press “Upload now” to start right away</string>
+    <string name="kind_videos">videos</string>
+    <string name="kind_photos">photos</string>
+    <string name="kind_both">photos and videos</string>
+    <string name="row_album">Phone albums</string>
+    <string name="album_none">None selected: tap to choose</string>
+    <string name="album_title">Albums to upload</string>
+    <string name="album_count_photos">%1$d photos</string>
+    <string name="album_count_videos">%1$d videos</string>
+    <string name="album_no_files">No files found: allow access to photos and videos</string>
+    <string name="album_saved">Albums saved</string>
+    <string name="row_folder">Server folder</string>
+    <string name="folder_summary">%1$s: %2$s</string>
+    <string name="folder_use_this">Use this folder</string>
+    <string name="folder_parent">..  (parent folder)</string>
+    <string name="folder_saved">Folder saved: %1$s</string>
+    <string name="folder_list_failed">Could not list the folders</string>
+    <string name="row_group">Subfolders on the server</string>
+    <string name="group_none">Everything in the same folder</string>
+    <string name="group_year">By year (e.g. %1$s)</string>
+    <string name="group_month">By year and month (e.g. %1$s)</string>
+    <string name="group_summary">%1$s. Like OneDrive: the date is the one in the file name, otherwise the date taken. Files already uploaded stay where they are. Tap to change.</string>
+    <string name="group_title">Subfolders on the server</string>
+    <string name="group_toast">Subfolders: %1$s</string>
+
+    <string name="sec_account">Account</string>
+    <string name="row_account">Account</string>
+    <string name="account_exit">Sign out of this account</string>
+    <string name="account_summary">%1$s · library %2$s · tap to sign out</string>
+    <string name="account_none">Not signed in</string>
+    <string name="exit_title">Sign out of this account?</string>
+    <string name="exit_msg">The token is deleted from this phone and automatic upload stops. To revoke it on the server too: Seafile (web) → settings → connected devices.</string>
+    <string name="exit_yes">Sign out</string>
+    <string name="exit_done">Signed out</string>
+
+    <string name="sec_works">So it works in the background</string>
+    <string name="row_battery">Battery</string>
+    <string name="battery_ok">No restrictions: background upload is not stopped</string>
+    <string name="battery_bad">Restricted: the phone may stop the upload. Tap to fix</string>
+    <string name="battery_toast_ok">No restrictions: all good. On Samsung also check that the app is not among the “sleeping” ones.</string>
+    <string name="row_access">Access to photos and videos</string>
+    <string name="access_ok">All %1$s are accessible</string>
+    <string name="access_partial">Only some files: tap and choose “Allow all”</string>
+    <string name="access_missing">Missing: tap to allow access to %1$s</string>
+    <string name="access_toast_ok">Access is already complete</string>
+    <string name="access_hint">Open “Permissions”, then “Photos and videos” and choose “Allow all”</string>
+    <string name="row_notif">Notifications</string>
+    <string name="notif_ok">Allowed</string>
+    <string name="notif_bad">Off: you will not see progress or errors. Tap to turn on</string>
+    <string name="notif_toast_ok">Notifications are already on</string>
+    <string name="notif_hint">Open “Notifications” and turn them on</string>
+
+    <string name="sec_adv">Advanced</string>
+    <string name="row_redo">Redo the comparison with the server</string>
+    <string name="redo_summary">Reads the file list on the server again and compares it with the phone\'s files</string>
+    <string name="redo_title">Redo the comparison with the server?</string>
+    <string name="redo_msg">The app reads the file list on the server again and compares it with the phone\'s files, then uploads only what is missing. Needed if you changed library, folder, album or file type.</string>
+    <string name="redo_yes">Redo</string>
+    <string name="redo_toast">Comparison started</string>
+    <string name="row_export">Save the registry to a file</string>
+    <string name="export_summary">So you do not lose the memory of what was already uploaded if you reinstall the app or change phone</string>
+    <string name="row_import">Restore the registry from a file</string>
+    <string name="import_summary">Imports a previously saved registry</string>
+    <string name="export_done">Registry saved: %1$d files</string>
+    <string name="export_failed">Saving failed</string>
+    <string name="import_title">Restore the registry?</string>
+    <string name="import_msg">The file contains %1$d files (library “%2$s”, folder %3$s). Existing rows are replaced. The settings saved in the file (folder, albums, file type, subfolders, frequency, Wi-Fi, language) are restored too; the sign-in is not, so sign in again first. The app will still redo the comparison with the server, without re-uploading anything already there.</string>
+    <string name="import_yes">Restore</string>
+    <string name="import_done">Registry restored: %1$d files</string>
+    <string name="import_failed">Reading failed</string>
+    <string name="import_invalid">not a Seafile Big Upload registry</string>
+    <string name="row_language">Language</string>
+    <string name="lang_title">Language</string>
+    <string name="lang_auto">Automatic (system language)</string>
+    <string name="lang_en">English</string>
+    <string name="lang_it">Italiano</string>
+    <string name="row_info">About</string>
+    <string name="info_summary">Version %1$s · William Baglioni · source code</string>
+
+    <!-- sign-in card -->
+    <string name="login_title">Sign in to Seafile</string>
+    <string name="hint_url">Server address (https://…)</string>
+    <string name="hint_user">Username (email)</string>
+    <string name="hint_pw">Password (not saved)</string>
+    <string name="hint_otp">Two-factor code</string>
+    <string name="login_help">Type the two-factor code right before pressing “Sign in”: it only lasts a few seconds. If sign-in fails, do not retry several times: after 3 errors the server asks for a captcha and also blocks the other apps.</string>
+    <string name="btn_signin">Sign in</string>
+    <string name="signing_in">Signing in…</string>
+    <string name="enter_fields">Enter address, username and password</string>
+    <string name="library_title">Library for photos and videos</string>
+    <string name="signed_in">Signed in. Now turn on “Automatic upload”</string>
+    <string name="login_failed_title">Sign-in failed</string>
+    <string name="login_failed_msg">%1$s\n\nDo not retry several times: after 3 errors the server asks for a captcha and also blocks the other apps. The button stays off for a minute.</string>
+
+    <!-- actions -->
+    <string name="signin_first">Sign in to Seafile first</string>
+    <string name="upload_started">Started: checking files and uploading the missing ones</string>
+    <string name="stop_requested">Stop requested: it stops at the end of the current chunk</string>
+    <string name="start_cancelled">Cancelled</string>
+    <string name="auto_on_toast">Automatic upload on: checking files now</string>
+    <string name="auto_off_toast">Automatic upload off: files are uploaded only with “Upload now”</string>
+    <string name="wifi_only_toast">Will upload only on Wi-Fi</string>
+    <string name="wifi_any_toast">Will upload on mobile data too: watch your data</string>
+    <string name="notify_on_toast">I will notify you when it finishes</string>
+    <string name="notify_off_toast">No notice when all goes well (errors are always reported)</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- file list screen -->
+    <string name="list_title">File list</string>
+    <string name="list_all">All</string>
+    <string name="list_waiting">Waiting</string>
+    <string name="list_done">Uploaded by this app</string>
+    <string name="list_server">Already on the server</string>
+    <string name="list_empty">No files in this list.</string>
+    <string name="label_done">Uploaded by this app</string>
+    <string name="label_server">Already on the server</string>
+    <string name="label_absent">No longer on the phone</string>
+    <string name="label_waiting">Waiting to be uploaded</string>
+    <string name="label_retry">To retry (attempt %1$d): %2$s</string>
+    <string name="kind_photo">Photo</string>
+    <string name="kind_video">Video</string>
+
+    <!-- about screen -->
+    <string name="about_title">About</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_intro">Automatically uploads your phone\'s videos and photos to your own Seafile server, even when a service like Cloudflare in front of the server refuses large files: it sends them in chunks, checks them one by one and keeps a registry of what has already been uploaded.</string>
+    <string name="about_sec_creator">Creator</string>
+    <string name="about_creator_summary">Idea, design decisions and testing</string>
+    <string name="about_sec_source">Source code</string>
+    <string name="about_repo">Repository on GitHub</string>
+    <string name="about_issues">Report a problem or ask for a feature</string>
+    <string name="about_sec_privacy">Privacy</string>
+    <string name="about_privacy_title">Your data stays yours</string>
+    <string name="about_privacy_text">The password is not saved. The sign-in token is encrypted with a key that never leaves the phone. The app only talks to the server you entered: nobody else receives anything.</string>
+    <string name="about_sec_notice">Notice</string>
+    <string name="about_notice_title">Unofficial app</string>
+    <string name="about_notice_text">It is not a product of Seafile Ltd and is not affiliated with Seafile. “Seafile” is a trademark of its respective owners.</string>
+    <string name="about_sec_built">Built with</string>
+    <string name="about_built_title">Kotlin, WorkManager, OkHttp, Material Components</string>
+    <string name="about_built_text">Free libraries, with their own licenses</string>
+
+    <!-- background worker and notifications -->
+    <string name="channel_progress">Progress</string>
+    <string name="channel_result">Upload result</string>
+    <string name="notif_checking">Checking files…</string>
+    <string name="result_summary">Uploaded %1$d, failed %2$d, already on the server %3$d, waiting %4$d.</string>
+    <string name="note_dates_all">Original file dates kept on the server.</string>
+    <string name="note_dates_none">On the server the files have the upload date (the server did not accept the original date).</string>
+    <string name="note_dates_some">Original date kept for %1$d of %2$d files.</string>
+    <string name="line_uploaded">  uploaded  %1$s</string>
+    <string name="line_error">  ERROR  %1$s</string>
+    <string name="notif_auth_title">Seafile sign-in no longer valid</string>
+    <string name="notif_auth_text">Open the app and sign in again.\n%1$s</string>
+    <string name="notif_failed_title">Files not uploaded: %1$d</string>
+    <string name="notif_done_title">%1$d files uploaded</string>
+    <string name="notif_crash_title">Upload failed</string>
+    <string name="notif_crash_text">Upload failed: %1$s</string>
+
+    <!-- messages from the upload engine -->
+    <string name="log_listing">Comparing with the server: reading the file list…</string>
+    <string name="log_compared">Comparison done: %1$d files on the phone, %2$d already on the server.</string>
+    <string name="log_uploading">Uploading (%1$d/%2$d) %3$s %4$s</string>
+    <string name="err_size_differs">a file named %1$s with a different size is already on the server (%2$d bytes, on the phone %3$d)</string>
+    <string name="err_size_differs_short">%1$s: different size on the server</string>
+    <string name="err_cannot_open">file cannot be opened</string>
+    <string name="err_final_check">final check failed: on the server %1$s instead of %2$d bytes</string>
+    <string name="err_no_file">no file</string>
+    <string name="err_auth">%1$s: sign-in is no longer valid (HTTP 401), sign in again</string>
+    <string name="err_otp">the two-factor code is needed (it lasts a few seconds)</string>
+    <string name="err_login">sign-in: HTTP %1$d %2$s</string>
+    <string name="err_incomplete_read">incomplete read of %1$s</string>
+    <string name="err_read_interrupted">reading of %1$s interrupted at %2$d bytes</string>
+    <string name="err_upload_failed">upload of %1$s failed</string>
+    <string name="what_libraries">library list</string>
+    <string name="what_files">file list</string>
+    <string name="what_folders">folder list</string>
+    <string name="what_file_check">file check</string>
+    <string name="what_folder_check">folder check</string>
+    <string name="what_make_folder">creating folder %1$s</string>
+    <string name="what_upload_link">upload link</string>
+    <string name="what_upload">upload of %1$s</string>
+    <string name="http_error">%1$s: HTTP %2$d %3$s</string>
+</resources>
