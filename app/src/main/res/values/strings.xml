@@ -174,6 +174,18 @@
     <string name="login_failed_title">Sign-in failed</string>
     <string name="login_failed_msg">%1$s\n\nDo not retry several times: after 3 errors the server asks for a captcha and also blocks the other apps. The button stays off for a minute.</string>
 
+    <!-- single sign-on (Google) -->
+    <string name="btn_signin_google">Sign in with Google</string>
+    <string name="sso_help">Or sign in with the single sign-on of your server (for example Google): the app opens your server\'s sign-in page and never sees your password. Type the server address above first.</string>
+    <string name="enter_url">Enter the server address</string>
+    <string name="sso_title">Sign in with Google</string>
+    <string name="sso_cancelled">Sign-in cancelled</string>
+    <string name="sso_error_title">Sign-in failed</string>
+    <string name="sso_error_load">The page could not be loaded (%1$s) on %2$s. Check the connection and the server address.</string>
+    <string name="sso_error_http">The server %2$s answered with an error (HTTP %1$d). Single sign-on may not be enabled for this account: ask the server administrator.</string>
+    <string name="sso_error_ssl">The security certificate of %1$s is not valid: sign-in stopped.</string>
+    <string name="sso_failed_msg">%1$s\n\nThe sign-in token was not accepted by the server and has been discarded.</string>
+
     <!-- actions -->
     <string name="signin_first">Sign in to Seafile first</string>
     <string name="upload_started">Started: checking files and uploading the missing ones</string>
@@ -214,7 +226,7 @@
     <string name="about_issues">Report a problem or ask for a feature</string>
     <string name="about_sec_privacy">Privacy</string>
     <string name="about_privacy_title">Your data stays yours</string>
-    <string name="about_privacy_text">The password is not saved. The sign-in token is encrypted with a key that never leaves the phone. The app only talks to the server you entered: nobody else receives anything.</string>
+    <string name="about_privacy_text">The password is not saved. The sign-in token is encrypted with a key that never leaves the phone. The app only talks to the server you entered; if you sign in with Google, Google\'s sign-in page opens through your server. Nobody else receives anything.</string>
     <string name="about_sec_notice">Notice</string>
     <string name="about_notice_title">Unofficial app</string>
     <string name="about_notice_text">It is not a product of Seafile Ltd and is not affiliated with Seafile. “Seafile” is a trademark of its respective owners.</string>

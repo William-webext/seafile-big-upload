@@ -39,6 +39,10 @@ Segnalazione upstream: https://github.com/haiwen/seadroid/issues/1208. Se un gio
 
 - Accesso con utente, password e codice a due fattori **dentro l'app**; la password non viene salvata. Si ottiene un **token per dispositivo** (`platform=android`, `device_id`, `device_name`):
   compare tra i dispositivi collegati di Seafile e si revoca da lì. **`device_id` per Android: da 1 a 16 caratteri esadecimali** (con un valore sbagliato il login dà `400 invalid device id` dopo aver accettato password e codice).
+- **Accesso con SSO (Google)**, come l'app ufficiale (`Sso.kt` logica pura con prove, `SsoActivity.kt` WebView): apre `/shib-login?shib_platform=android&shib_device_id=…&shib_device_name=…&shib_client_version=…&shib_platform_version=…`
+  (poi `/sso/` → `/oauth/login/` → Google → `/oauth/callback/`); il server scrive il token per dispositivo nel cookie `seahub_auth` = `email@token`, che l'app legge con `CookieManager` (a ogni passo della navigazione) e salva cifrato.
+  Si parte da cookie vuoti e si puliscono alla fine; solo https; errori/annullamento chiudono senza salvare niente. Poi la stessa verifica del login con password (`repos()`); se fallisce il token si revoca e si scarta.
+  Il login con password resta. Percorso alternativo, **non fatto**: `/api2/client-sso-link/` con il browser di sistema, richiede `CLIENT_SSO_VIA_LOCAL_BROWSER = True` sul server (da chiedere prima), solo se Google blocca le WebView.
 - Il token è cifrato con una chiave del Keystore Android (`Cripto.kt`). `allowBackup=false`. Solo HTTPS.
 - I server Seafile possono limitare i login falliti (`LOGIN_ATTEMPT_LIMIT`): dopo qualche errore chiedono il captcha e bloccano anche le altre app. Il pulsante di accesso si spegne per un minuto dopo un errore.
 - **Mai nel repository:** `key.properties`, `*.jks`, `*.keystore`, `local.properties`, `backup/`, `NOTE-PRIVATE.md`, indirizzi/token/password/identificativi di un server vero. Vedi `.gitignore`.
@@ -46,7 +50,7 @@ Segnalazione upstream: https://github.com/haiwen/seadroid/issues/1208. Se un gio
 ## Struttura
 
 `app/src/main/java/dev/seafilebigupload/`: `MainActivity.kt` (schermata unica, costruita da codice), `ElencoActivity.kt` (elenco dei file e stato), `InfoActivity.kt`, `Ui.kt` (righe stile impostazioni),
-`Prefs.kt`, `Cripto.kt`, `Db.kt`, `Media.kt` (lettura MediaStore, data per le sottocartelle), `SeafileClient.kt` (API di Seafile), `Caricatore.kt` (il giro), `VideoWorker.kt`, `Pianifica.kt`, `Lingua.kt` (`App`, `Lingua`, `T`).
+`Prefs.kt`, `Cripto.kt`, `Db.kt`, `Media.kt` (lettura MediaStore, data per le sottocartelle), `SeafileClient.kt` (API di Seafile), `Sso.kt` + `SsoActivity.kt` (accesso con SSO), `Caricatore.kt` (il giro), `VideoWorker.kt`, `Pianifica.kt`, `Lingua.kt` (`App`, `Lingua`, `T`).
 Dipendenze: AndroidX core e appcompat, Material Components 1.12, WorkManager, OkHttp 4.12. minSdk 26, targetSdk 35, compileSdk 36. Kotlin 2.2.20, AGP 8.13.0, Gradle 8.14.3, Java 17.
 
 ## Regole di lavoro

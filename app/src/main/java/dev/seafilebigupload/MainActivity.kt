@@ -74,6 +74,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var password: TextInputEditText
     private lateinit var otp: TextInputEditText
     private lateinit var bAccedi: MaterialButton
+    private lateinit var bGoogle: MaterialButton
+
+    // ritorno dalla schermata di accesso con SSO: se è andata bene il token è già salvato e resta la verifica di sempre
+    private val sso = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
+        if (r.resultCode == RESULT_OK && p.token.isNotEmpty()) dopoSso() else messaggio(getString(R.string.sso_cancelled))
+    }
 
     // righe
     private lateinit var rAuto: Ui.Riga
@@ -227,6 +233,7 @@ class MainActivity : AppCompatActivity() {
         url = eUrl; utente = eUtente; password = ePw; otp = eOtp
         url.setText(p.url); utente.setText(p.user)
         bAccedi = MaterialButton(ctx).apply { text = getString(R.string.btn_signin); setOnClickListener { accedi() } }
+        bGoogle = MaterialButton(ctx, null, M.attr.materialButtonOutlinedStyle).apply { text = getString(R.string.btn_signin_google); setOnClickListener { accediConSso() } }
         val spiegazione = TextView(ctx).apply {
             text = getString(R.string.login_help)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f); setTextColor(Ui.grigio(ctx)); setPadding(0, Ui.dp(ctx, 8), 0, Ui.dp(ctx, 8))
@@ -238,6 +245,11 @@ class MainActivity : AppCompatActivity() {
             addView(titolo)
             for (t in listOf(tUrl, tUtente, tPw, tOtp)) addView(t, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = Ui.dp(ctx, 8) })
             addView(spiegazione); addView(bAccedi)
+            addView(TextView(ctx).apply {
+                text = getString(R.string.sso_help)
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f); setTextColor(Ui.grigio(ctx)); setPadding(0, Ui.dp(ctx, 16), 0, Ui.dp(ctx, 8))
+            })
+            addView(bGoogle)
         }
         cardAccesso = scheda(interno)
         colonna.addView(cardAccesso, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
@@ -528,29 +540,67 @@ class MainActivity : AppCompatActivity() {
         if (!salvaAccesso()) return
         val pw = password.text.toString(); val codice = otp.text.toString()
         if (p.url.isEmpty() || p.user.isEmpty() || pw.isEmpty()) { messaggio(getString(R.string.enter_fields)); return }
-        bAccedi.isEnabled = false; bAccedi.text = getString(R.string.signing_in)
+        bAccedi.isEnabled = false; bGoogle.isEnabled = false; bAccedi.text = getString(R.string.signing_in)
         thread {
             try {
                 val token = SeafileClient(p.url).login(p.user, pw, codice, p.deviceId, "Seafile Big Upload (${Build.MODEL})", Build.VERSION.RELEASE)
                 p.token = token
                 val repos = SeafileClient(p.url, token).repos()
                 ui.post { if (!vivo()) return@post;
-                    password.setText(""); otp.setText(""); bAccedi.isEnabled = true; bAccedi.text = getString(R.string.btn_signin)
-                    MaterialAlertDialogBuilder(this).setTitle(getString(R.string.library_title))
-                        .setItems(repos.map { it.second }.toTypedArray()) { _, i ->
-                            if (p.repoId != repos[i].first) p.riconciliato = false
-                            p.repoId = repos[i].first; p.repoName = repos[i].second
-                            messaggio(getString(R.string.signed_in))
-                            mostra()
-                        }.setCancelable(false).show()
+                    password.setText(""); otp.setText(""); bAccedi.isEnabled = true; bGoogle.isEnabled = true; bAccedi.text = getString(R.string.btn_signin)
+                    scegliLibreria(repos)
                 }
             } catch (e: Exception) {
                 ui.post { if (!vivo()) return@post;
-                    bAccedi.text = getString(R.string.btn_signin)
+                    bAccedi.text = getString(R.string.btn_signin); bGoogle.isEnabled = true
                     MaterialAlertDialogBuilder(this).setTitle(getString(R.string.login_failed_title))
                         .setMessage(getString(R.string.login_failed_msg, e.message))
                         .setPositiveButton(getString(R.string.ok), null).show()
                     ui.postDelayed({ bAccedi.isEnabled = true }, 60_000)
+                }
+            }
+        }
+    }
+
+    /** Scelta della libreria dopo un accesso riuscito (con password o con SSO). */
+    private fun scegliLibreria(repos: List<Pair<String, String>>) {
+        MaterialAlertDialogBuilder(this).setTitle(getString(R.string.library_title))
+            .setItems(repos.map { it.second }.toTypedArray()) { _, i ->
+                if (p.repoId != repos[i].first) p.riconciliato = false
+                p.repoId = repos[i].first; p.repoName = repos[i].second
+                messaggio(getString(R.string.signed_in))
+                mostra()
+            }.setCancelable(false).show()
+    }
+
+    /** "Accedi con Google": la schermata con la WebView ottiene il token per dispositivo dal server; le credenziali non passano mai da qui. */
+    private fun accediConSso() {
+        if (!salvaAccesso()) return
+        if (p.url.isEmpty()) { messaggio(getString(R.string.enter_url)); return }
+        sso.launch(Intent(this, SsoActivity::class.java).putExtra(SsoActivity.EXTRA_URL, p.url))
+    }
+
+    /** Il token è già salvato da SsoActivity: stessa verifica dell'accesso con password (elenco delle librerie), poi la scelta della libreria. */
+    private fun dopoSso() {
+        val indirizzo = p.url; val token = p.token
+        utente.setText(p.user)
+        bAccedi.isEnabled = false; bGoogle.isEnabled = false; bGoogle.text = getString(R.string.signing_in)
+        thread {
+            try {
+                val repos = SeafileClient(indirizzo, token).repos()
+                ui.post { if (!vivo()) return@post;
+                    bAccedi.isEnabled = true; bGoogle.isEnabled = true; bGoogle.text = getString(R.string.btn_signin_google)
+                    scegliLibreria(repos)
+                }
+            } catch (e: Exception) {
+                // un token che non funziona non deve restare né sul telefono né tra i dispositivi collegati
+                try { SeafileClient(indirizzo, token).logout() } catch (_: Exception) { /* già revocato o server non raggiungibile */ }
+                ui.post { if (!vivo()) return@post;
+                    if (p.token == token) p.token = ""
+                    bAccedi.isEnabled = true; bGoogle.isEnabled = true; bGoogle.text = getString(R.string.btn_signin_google)
+                    MaterialAlertDialogBuilder(this).setTitle(getString(R.string.login_failed_title))
+                        .setMessage(getString(R.string.sso_failed_msg, e.message))
+                        .setPositiveButton(getString(R.string.ok), null).show()
                 }
             }
         }

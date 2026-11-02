@@ -263,7 +263,7 @@ class SeafileClient(base: String, private val token: String? = null) {
 
     companion object {
         const val CHUNK = 8 * 1024 * 1024
-        const val CLIENT_VERSION = "0.5.3"
+        const val CLIENT_VERSION = "0.5.4"
         const val UA = "Seafile-Big-Upload/$CLIENT_VERSION"
     }
 }

@@ -173,6 +173,18 @@
     <string name="login_failed_title">Accesso non riuscito</string>
     <string name="login_failed_msg">%1$s\n\nNon ritentare più volte: dopo 3 errori il server chiede il captcha e blocca anche le altre app. Il pulsante resta spento per un minuto.</string>
 
+    <!-- accesso unico (Google) -->
+    <string name="btn_signin_google">Accedi con Google</string>
+    <string name="sso_help">Oppure entra con l\'accesso unico del tuo server (per esempio Google): l\'app apre la pagina di accesso del server e non vede mai la tua password. Scrivi prima l\'indirizzo del server qui sopra.</string>
+    <string name="enter_url">Scrivi l\'indirizzo del server</string>
+    <string name="sso_title">Accedi con Google</string>
+    <string name="sso_cancelled">Accesso annullato</string>
+    <string name="sso_error_title">Accesso non riuscito</string>
+    <string name="sso_error_load">Impossibile caricare la pagina (%1$s) su %2$s. Controlla la connessione e l\'indirizzo del server.</string>
+    <string name="sso_error_http">Il server %2$s ha risposto con un errore (HTTP %1$d). L\'accesso unico potrebbe non essere abilitato per questo account: chiedi all\'amministratore del server.</string>
+    <string name="sso_error_ssl">Il certificato di sicurezza di %1$s non è valido: accesso interrotto.</string>
+    <string name="sso_failed_msg">%1$s\n\nIl token di accesso non è stato accettato dal server ed è stato scartato.</string>
+
     <!-- azioni -->
     <string name="signin_first">Prima accedi a Seafile</string>
     <string name="upload_started">Avviato: controllo i file e carico quelli che mancano</string>
@@ -213,7 +225,7 @@
     <string name="about_issues">Segnala un problema o chiedi una funzione</string>
     <string name="about_sec_privacy">Privacy</string>
     <string name="about_privacy_title">I tuoi dati restano tuoi</string>
-    <string name="about_privacy_text">La password non viene salvata. Il token di accesso è cifrato con una chiave che non esce dal telefono. L\'app parla solo con il server che hai indicato: nessun altro riceve niente.</string>
+    <string name="about_privacy_text">La password non viene salvata. Il token di accesso è cifrato con una chiave che non esce dal telefono. L\'app parla solo con il server che hai indicato; se entri con Google, la pagina di accesso di Google si apre tramite il tuo server. Nessun altro riceve niente.</string>
     <string name="about_sec_notice">Avvertenza</string>
     <string name="about_notice_title">App non ufficiale</string>
     <string name="about_notice_text">Non è un prodotto di Seafile Ltd e non è affiliata a Seafile. «Seafile» è un marchio dei rispettivi proprietari.</string>

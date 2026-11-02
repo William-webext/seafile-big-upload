@@ -42,6 +42,13 @@
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 
+        <!-- la WebView dell'accesso con SSO non deve ripartire (e perdere la pagina di Google) a ogni rotazione -->
+        <activity
+            android:name=".SsoActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode|layoutDirection"
+            android:parentActivityName=".MainActivity" />
+
         <!-- tiene a mente la lingua scelta dall'utente anche sulle versioni di Android precedenti alla 13 -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"

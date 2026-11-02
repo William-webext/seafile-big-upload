@@ -22,6 +22,7 @@ that does the whole job on its own.
 - **Optional subfolders** like OneDrive: none, by year (`2026`) or by year and month (`2026/11`), using the date in the file name or the date taken.
 - **Safety check you can tune**: every 15 minutes, hourly (default), every 6 hours, daily or weekly. Empty checks make no network requests and show no notification.
 - **Wi-Fi only** by default, with progress shown during the comparison and the upload.
+- **Sign in with username, password and 2FA, or with single sign-on (Google)** if your server has it enabled: the same flow as the official Android app (`/shib-login` in a WebView), no server changes needed.
 - **Per-device token** (shows up in Seafile's *Connected devices* and can be revoked there); your password is never stored, the token is encrypted with a key that stays on the phone.
 - **Save / restore the registry and settings** to a file, for reinstalls or a new phone.
 - English and Italian, with a language picker (default: your phone's language, English unless it is Italian).
@@ -67,7 +68,7 @@ Keep a safe backup of the keystore and its password: updates can only be install
 
 ## Privacy
 
-The app only talks to the server address you enter. No analytics, no third parties. The password is not saved; the access token is encrypted with an Android Keystore key.
+The app only talks to the server address you enter (with "Sign in with Google", Google's sign-in page opens inside the app through your server). No analytics, no third parties. The password is not saved; the access token is encrypted with an Android Keystore key.
 
 ## Status
 
