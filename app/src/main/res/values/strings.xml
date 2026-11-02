@@ -111,7 +111,7 @@
     <string name="account_summary">%1$s · library %2$s · tap to sign out</string>
     <string name="account_none">Not signed in</string>
     <string name="exit_title">Sign out of this account?</string>
-    <string name="exit_msg">The token is deleted from this phone and automatic upload stops. To revoke it on the server too: Seafile (web) → settings → connected devices.</string>
+    <string name="exit_msg">The app asks the server to revoke this phone\'s sign-in and deletes the token from the phone; automatic upload stops. If the server cannot be reached, revoke the device from Seafile (web) → settings → connected devices.</string>
     <string name="exit_yes">Sign out</string>
     <string name="exit_done">Signed out</string>
 
@@ -140,7 +140,7 @@
     <string name="redo_yes">Redo</string>
     <string name="redo_toast">Comparison started</string>
     <string name="row_export">Save the registry to a file</string>
-    <string name="export_summary">So you do not lose the memory of what was already uploaded if you reinstall the app or change phone</string>
+    <string name="export_summary">So you do not lose the memory of what was already uploaded if you reinstall the app or change phone. The file is not encrypted (it lists your file names): keep it private</string>
     <string name="row_import">Restore the registry from a file</string>
     <string name="import_summary">Imports a previously saved registry</string>
     <string name="export_done">Registry saved: %1$d files</string>
@@ -263,4 +263,7 @@
     <string name="what_upload_link">upload link</string>
     <string name="what_upload">upload of %1$s</string>
     <string name="http_error">%1$s: HTTP %2$d %3$s</string>
+    <string name="err_https_only">Only secure addresses are accepted: use https://</string>
+    <string name="err_link_insecure">the server gave an upload link that is not secure (https): refused</string>
+    <string name="import_too_big">the file is too big to be a registry</string>
 </resources>

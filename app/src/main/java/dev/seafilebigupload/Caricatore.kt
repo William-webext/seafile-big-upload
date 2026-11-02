@@ -25,6 +25,9 @@ object Caricatore {
         val prossimoMs: Long?,
     )
 
+    /** C'è già un giro in corso? Un secondo lavoro che parte nel frattempo non deve toccare avanzamento e notifica del primo. */
+    fun occupato(): Boolean = lucchetto.isLocked
+
     fun mb(b: Long) = "%.1f MB".format(b / 1e6)
 
     /** Registra i file del telefono e decide cosa caricare adesso. Nessuna richiesta di rete. */
@@ -123,6 +126,9 @@ object Caricatore {
                     falliti.add("${v.nome}: ${e.message}")
                     break
                 } catch (e: InterruptedUpload) {
+                    break
+                } catch (e: InterruptedException) {
+                    Thread.currentThread().interrupt()   // il sistema ha fermato il lavoro: non è un errore del file
                     break
                 } catch (e: Exception) {
                     Log.w(TAG, "fallito ${v.nome}", e)

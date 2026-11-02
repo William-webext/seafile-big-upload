@@ -13,7 +13,8 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         istanza = this
-        Lingua.applica(this)
+        // con "automatica" non si tocca niente: se l'utente ha scelto una lingua per l'app dalle impostazioni di Android, deve restare
+        if (Lingua.codice(this) != Lingua.AUTO) Lingua.applica(this)
     }
 
     companion object {

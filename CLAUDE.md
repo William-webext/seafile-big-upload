@@ -51,6 +51,13 @@ Dipendenze: AndroidX core e appcompat, Material Components 1.12, WorkManager, Ok
 
 ## Regole di lavoro
 
+- **Prove automatiche:** `./gradlew testDebugUnitTest` (JUnit, solo logica pura in `app/src/test/`: data nei nomi dei file e nomi delle cartelle, anche con lingue che usano altre cifre). Aggiungerne quando si tocca quella logica.
+- **Cifre e formati:** ogni `format(...)` che produce nomi di cartelle o percorsi usa `Locale.ROOT` (con il telefono in arabo, persiano, bengalese, marathi `String.format` scrive cifre non latine).
+- **Un solo giro alla volta:** un lavoro che parte mentre un altro sta caricando (`Caricatore.occupato()`) esce subito e non tocca avanzamento né notifica; il trigger si riarma solo se il caricamento automatico è ancora acceso.
+- **Indirizzo del server:** solo `https://` (l'app aggiunge lo schema se manca e rifiuta `http://`; il link di caricamento che arriva dal server deve essere https). Scollegarsi chiede al server di revocare il token (`/api2/logout-device/`);
+  un token revocato dal web risponde con `X-Seafile-Wiped` e vale come "accesso non valido".
+- **Lingua dell'app:** all'avvio si applica solo se scelta in modo esplicito (non "automatica"), per non cancellare la scelta fatta dalle impostazioni di Android.
+
 - **Testi:** inglese di base in `res/values/strings.xml`, italiano in `res/values-it/strings.xml`, **stesse chiavi**. Mai testi scritti nel codice: nelle schermate `getString(R.string.x)`, fuori dalle schermate `T.s(R.string.x, …)`.
   Lingua dell'app: automatica (quella del sistema: inglese salvo telefono in italiano), English, Italiano (`Lingua.applica` con `AppCompatDelegate.setApplicationLocales`).
 - **Trappola dei dialoghi:** in un `AlertDialog` con `setMessage()` **e** un elenco di scelte Android mostra solo il messaggio e l'elenco sparisce. Nei dialoghi con elenco niente `setMessage`.

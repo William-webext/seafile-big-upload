@@ -110,7 +110,7 @@
     <string name="account_summary">%1$s · libreria %2$s · tocca per uscire</string>
     <string name="account_none">Nessun accesso eseguito</string>
     <string name="exit_title">Uscire da questo account?</string>
-    <string name="exit_msg">Si cancella il token da questo telefono e il caricamento automatico si ferma. Per revocarlo anche sul server: Seafile (web), impostazioni, dispositivi collegati.</string>
+    <string name="exit_msg">L\'app chiede al server di revocare l\'accesso di questo telefono e cancella il token dal telefono; il caricamento automatico si ferma. Se il server non è raggiungibile, revoca il dispositivo da Seafile (web) → impostazioni → dispositivi collegati.</string>
     <string name="exit_yes">Esci</string>
     <string name="exit_done">Accesso rimosso</string>
 
@@ -139,7 +139,7 @@
     <string name="redo_yes">Rifai</string>
     <string name="redo_toast">Confronto avviato</string>
     <string name="row_export">Salva il registro in un file</string>
-    <string name="export_summary">Per non perdere la memoria di cosa è già stato caricato se reinstalli l\'app o cambi telefono</string>
+    <string name="export_summary">Per non perdere la memoria di cosa è già stato caricato se reinstalli l\'app o cambi telefono. Il file non è cifrato (elenca i nomi dei tuoi file): tienilo privato</string>
     <string name="row_import">Riprendi il registro da un file</string>
     <string name="import_summary">Importa un registro salvato prima</string>
     <string name="export_done">Registro salvato: %1$d file</string>
@@ -262,4 +262,7 @@
     <string name="what_upload_link">link di caricamento</string>
     <string name="what_upload">caricamento di %1$s</string>
     <string name="http_error">%1$s: HTTP %2$d %3$s</string>
+    <string name="err_https_only">Sono accettati solo indirizzi sicuri: usa https://</string>
+    <string name="err_link_insecure">il server ha dato un link di caricamento non sicuro (https): rifiutato</string>
+    <string name="import_too_big">il file è troppo grande per essere un registro</string>
 </resources>

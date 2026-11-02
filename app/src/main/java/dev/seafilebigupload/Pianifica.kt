@@ -13,7 +13,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 
-/** Quando gira il caricamento: a ogni video nuovo, ogni 3 ore come rete di sicurezza, e a richiesta. */
+/** Quando gira il caricamento: a ogni file nuovo, a intervalli scelti come rete di sicurezza, e a richiesta. */
 object Pianifica {
     const val CHIAVE_TRIGGER = "trigger"
     const val CHIAVE_RIPROVA = "riprova"
@@ -80,11 +80,11 @@ object Pianifica {
     }
 
     fun disattiva(ctx: Context, p: Prefs) {
+        p.automatico = false   // prima l'interruttore: un giro in corso che sta finendo non deve riarmare il trigger
         val wm = WorkManager.getInstance(ctx)
         wm.cancelUniqueWork(LAVORO_TRIGGER)
         wm.cancelUniqueWork(LAVORO_PERIODICO)
         wm.cancelUniqueWork(LAVORO_RIPROVA)
-        p.automatico = false
     }
 
     /** Un giro subito (con le stesse regole di rete delle impostazioni). */

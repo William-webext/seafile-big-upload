@@ -343,7 +343,7 @@ class MainActivity : AppCompatActivity() {
         val c = db.conteggi()
         val f = Db.Stato
         val inAttesa = c[f.DA_CARICARE] ?: 0
-        val daRiprovare = db.tutti().filter { it.stato == f.DA_CARICARE && it.errore.isNotEmpty() }
+        val (nErrori, ultimoErrore) = db.errori()
         val titolo: String; val colore: Int; val dettaglio: String
         when {
             !configurato -> { titolo = getString(R.string.state_login_missing); colore = Ui.rosso(ctx); dettaglio = getString(R.string.state_login_missing_detail) }
@@ -392,9 +392,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         contatori.text = getString(R.string.counters, c[f.FATTO_SERVER] ?: 0, c[f.FATTO] ?: 0, inAttesa)
-        if (daRiprovare.isNotEmpty()) {
+        if (nErrori > 0) {
             errori.visibility = View.VISIBLE
-            errori.text = getString(R.string.errors_line, daRiprovare.size, daRiprovare.first().errore.take(110))
+            errori.text = getString(R.string.errors_line, nErrori, ultimoErrore.take(110))
         } else errori.visibility = View.GONE
 
         // un solo pulsante alla volta: se il lavoro è in coda o in corso "Carica ora" sparisce, così non si preme di nuovo
@@ -439,6 +439,9 @@ class MainActivity : AppCompatActivity() {
         r.sommario.text = if (ok) "✔  $testoOk" else "⚠  $testoProblema"
         r.sommario.setTextColor(if (ok) Ui.grigio(this) else Ui.rosso(this))
     }
+
+    /** La schermata esiste ancora? Un'operazione in sottofondo che finisce dopo una rotazione o un cambio di lingua non deve mostrarle finestre. */
+    private fun vivo() = !isFinishing && !isDestroyed
 
     private fun messaggio(t: String) = Snackbar.make(radice, t, Snackbar.LENGTH_LONG).show()
 
@@ -511,10 +514,18 @@ class MainActivity : AppCompatActivity() {
 
     // ---------------------------------------------------------------- azioni
 
-    private fun salvaAccesso() { p.url = url.text.toString(); p.user = utente.text.toString() }
+    /** Salva indirizzo e utente. Senza schema si aggiunge https://; un indirizzo http:// si rifiuta (la password non deve viaggiare in chiaro). */
+    private fun salvaAccesso(): Boolean {
+        var u = url.text.toString().trim()
+        if (u.isNotEmpty() && !u.contains("://")) u = "https://$u"
+        if (u.startsWith("http://", ignoreCase = true)) { messaggio(getString(R.string.err_https_only)); return false }
+        p.url = u; p.user = utente.text.toString()
+        if (u.isNotEmpty()) url.setText(p.url)
+        return true
+    }
 
     private fun accedi() {
-        salvaAccesso()
+        if (!salvaAccesso()) return
         val pw = password.text.toString(); val codice = otp.text.toString()
         if (p.url.isEmpty() || p.user.isEmpty() || pw.isEmpty()) { messaggio(getString(R.string.enter_fields)); return }
         bAccedi.isEnabled = false; bAccedi.text = getString(R.string.signing_in)
@@ -523,7 +534,7 @@ class MainActivity : AppCompatActivity() {
                 val token = SeafileClient(p.url).login(p.user, pw, codice, p.deviceId, "Seafile Big Upload (${Build.MODEL})", Build.VERSION.RELEASE)
                 p.token = token
                 val repos = SeafileClient(p.url, token).repos()
-                ui.post {
+                ui.post { if (!vivo()) return@post;
                     password.setText(""); otp.setText(""); bAccedi.isEnabled = true; bAccedi.text = getString(R.string.btn_signin)
                     MaterialAlertDialogBuilder(this).setTitle(getString(R.string.library_title))
                         .setItems(repos.map { it.second }.toTypedArray()) { _, i ->
@@ -534,7 +545,7 @@ class MainActivity : AppCompatActivity() {
                         }.setCancelable(false).show()
                 }
             } catch (e: Exception) {
-                ui.post {
+                ui.post { if (!vivo()) return@post;
                     bAccedi.text = getString(R.string.btn_signin)
                     MaterialAlertDialogBuilder(this).setTitle(getString(R.string.login_failed_title))
                         .setMessage(getString(R.string.login_failed_msg, e.message))
@@ -548,7 +559,12 @@ class MainActivity : AppCompatActivity() {
     private fun esci() {
         MaterialAlertDialogBuilder(this).setTitle(getString(R.string.exit_title))
             .setMessage(getString(R.string.exit_msg))
-            .setPositiveButton(getString(R.string.exit_yes)) { _, _ -> Pianifica.disattiva(this, p); p.azzeraAccesso(); messaggio(getString(R.string.exit_done)); mostra() }
+            .setPositiveButton(getString(R.string.exit_yes)) { _, _ ->
+                val indirizzo = p.url; val token = p.token
+                // si chiede al server di revocare il token; se non risponde resta la revoca a mano dal sito (lo dice il testo del dialogo)
+                thread { try { SeafileClient(indirizzo, token).logout() } catch (_: Exception) { /* meglio ancora: già revocato */ } }
+                Pianifica.disattiva(this, p); p.azzeraAccesso(); messaggio(getString(R.string.exit_done)); mostra()
+            }
             .setNegativeButton(getString(R.string.cancel), null).show()
     }
 
@@ -680,9 +696,9 @@ class MainActivity : AppCompatActivity() {
         thread {
             try {
                 val sotto = SeafileClient(p.url, p.token).cartelle(p.repoId, dir)
-                ui.post { dialogoCartelle(dir, sotto) }
+                ui.post { if (!vivo()) return@post; dialogoCartelle(dir, sotto) }
             } catch (e: Exception) {
-                ui.post { MaterialAlertDialogBuilder(this).setTitle(getString(R.string.folder_list_failed)).setMessage(e.message).setPositiveButton(getString(R.string.ok), null).show() }
+                ui.post { if (!vivo()) return@post; MaterialAlertDialogBuilder(this).setTitle(getString(R.string.folder_list_failed)).setMessage(e.message).setPositiveButton(getString(R.string.ok), null).show() }
             }
         }
     }
@@ -721,9 +737,9 @@ class MainActivity : AppCompatActivity() {
                     put("righe", righe)
                 }
                 contentResolver.openOutputStream(uri, "wt")!!.use { it.write(json.toString().toByteArray(Charsets.UTF_8)) }
-                ui.post { messaggio(getString(R.string.export_done, righe.length())) }
+                ui.post { if (!vivo()) return@post; messaggio(getString(R.string.export_done, righe.length())) }
             } catch (e: Exception) {
-                ui.post { MaterialAlertDialogBuilder(this).setTitle(getString(R.string.export_failed)).setMessage(e.message).setPositiveButton(getString(R.string.ok), null).show() }
+                ui.post { if (!vivo()) return@post; MaterialAlertDialogBuilder(this).setTitle(getString(R.string.export_failed)).setMessage(e.message).setPositiveButton(getString(R.string.ok), null).show() }
             }
         }
     }
@@ -744,11 +760,19 @@ class MainActivity : AppCompatActivity() {
     private fun importaDa(uri: Uri) {
         thread {
             try {
-                val testo = contentResolver.openInputStream(uri)!!.use { String(it.readBytes(), Charsets.UTF_8) }
+                val testo = contentResolver.openInputStream(uri)!!.use { flusso ->
+                    val out = java.io.ByteArrayOutputStream(); val buf = ByteArray(65536); var tot = 0
+                    while (true) {
+                        val n = flusso.read(buf); if (n < 0) break
+                        tot += n; if (tot > 50 * 1024 * 1024) throw IllegalArgumentException(getString(R.string.import_too_big))
+                        out.write(buf, 0, n)
+                    }
+                    String(out.toByteArray(), Charsets.UTF_8)
+                }
                 val json = JSONObject(testo)
                 if (json.optString("tipo") != "seafile-big-upload-registro") throw IllegalArgumentException(getString(R.string.import_invalid))
                 val righe = json.getJSONArray("righe")
-                ui.post {
+                ui.post { if (!vivo()) return@post;
                     MaterialAlertDialogBuilder(this).setTitle(getString(R.string.import_title))
                         .setMessage(getString(R.string.import_msg, righe.length(), json.optString("libreria"), json.optString("cartella")))
                         .setPositiveButton(getString(R.string.import_yes)) { _, _ ->
@@ -756,7 +780,7 @@ class MainActivity : AppCompatActivity() {
                                 val n = db.importa(righe)
                                 json.optJSONObject("impostazioni")?.let { applicaImpostazioni(it) }
                                 p.riconciliato = false
-                                ui.post {
+                                ui.post { if (!vivo()) return@post;
                                     messaggio(getString(R.string.import_done, n)); mostra()
                                     // le impostazioni riprese possono richiedere permessi nuovi (per esempio le foto): si chiedono subito
                                     chiediPermessiIniziali()
@@ -767,7 +791,7 @@ class MainActivity : AppCompatActivity() {
                         .setNegativeButton(getString(R.string.cancel), null).show()
                 }
             } catch (e: Exception) {
-                ui.post { MaterialAlertDialogBuilder(this).setTitle(getString(R.string.import_failed)).setMessage(e.message).setPositiveButton(getString(R.string.ok), null).show() }
+                ui.post { if (!vivo()) return@post; MaterialAlertDialogBuilder(this).setTitle(getString(R.string.import_failed)).setMessage(e.message).setPositiveButton(getString(R.string.ok), null).show() }
             }
         }
     }

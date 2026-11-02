@@ -20,8 +20,8 @@ android {
         applicationId = "dev.seafilebigupload"
         minSdk = 26
         targetSdk = 35
-        versionCode = 8
-        versionName = "0.5.2"
+        versionCode = 9
+        versionName = "0.5.3"
     }
 
     signingConfigs {
@@ -48,6 +48,10 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+    testOptions {
+        // i test provano solo logica pura: le classi di Android restituiscono valori vuoti invece di fermare la prova
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -56,4 +60,6 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.work:work-runtime-ktx:2.10.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    testImplementation("junit:junit:4.13.2")
 }

@@ -7,6 +7,7 @@ import android.provider.MediaStore
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.util.Locale
 
 /**
  * Un file multimediale presente sul telefono (video o foto). La chiave (nome|dimensione) è come il server lo riconosce.
@@ -47,11 +48,14 @@ object Media {
     }
 
     /** Cartella di destinazione sul server per questo file, secondo il raggruppamento scelto ("nessuno", "anno", "annomese"). */
-    fun cartella(base: String, raggruppa: String, m: MediaLocale): String {
+    fun cartella(base: String, raggruppa: String, m: MediaLocale): String = cartella(base, raggruppa, m.anno, m.mese)
+
+    fun cartella(base: String, raggruppa: String, anno: Int, mese: Int): String {
         val b = base.trimEnd('/')
         return when (raggruppa) {
-            "anno" -> "$b/%04d".format(m.anno)
-            "annomese" -> "$b/%04d/%02d".format(m.anno, m.mese)
+            // Locale.ROOT: con il telefono in arabo, persiano, bengalese... le cifre sarebbero quelle della lingua e le cartelle avrebbero nomi strani
+            "anno" -> "$b/%04d".format(Locale.ROOT, anno)
+            "annomese" -> "$b/%04d/%02d".format(Locale.ROOT, anno, mese)
             else -> b
         }
     }

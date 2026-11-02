@@ -144,6 +144,16 @@ class Db(ctx: Context) : SQLiteOpenHelper(ctx, "video.db", null, 2) {
     fun conteggi(): Map<String, Int> = readableDatabase.rawQuery("SELECT stato, COUNT(*) FROM video GROUP BY stato", null)
         .use { c -> buildMap { while (c.moveToNext()) put(c.getString(0), c.getInt(1)) } }
 
+    /** Quanti file "da caricare" hanno un errore, e l'ultimo messaggio: la schermata lo chiede ogni secondo, senza leggere tutto il registro. */
+    @Synchronized
+    fun errori(): Pair<Int, String> {
+        val n = readableDatabase.rawQuery("SELECT COUNT(*) FROM video WHERE stato = ? AND errore <> ''", arrayOf(Stato.DA_CARICARE)).use { if (it.moveToFirst()) it.getInt(0) else 0 }
+        if (n == 0) return 0 to ""
+        val ultimo = readableDatabase.rawQuery("SELECT errore FROM video WHERE stato = ? AND errore <> '' ORDER BY aggiornato_ms DESC LIMIT 1", arrayOf(Stato.DA_CARICARE))
+            .use { if (it.moveToFirst()) it.getString(0) else "" }
+        return n to ultimo
+    }
+
     @Synchronized
     fun svuota() { writableDatabase.delete("video", null, null) }
 
@@ -172,6 +182,10 @@ class Db(ctx: Context) : SQLiteOpenHelper(ctx, "video.db", null, 2) {
         try {
             for (i in 0 until righe.length()) {
                 val o = righe.getJSONObject(i)
+                // un file di registro non fidato: si scartano le righe con valori impossibili invece di scriverle
+                val stato = o.optString("stato")
+                if (stato !in setOf(Stato.DA_CARICARE, Stato.FATTO_SERVER, Stato.FATTO, Stato.ASSENTE)) continue
+                if (o.optString("chiave").isEmpty() || o.optString("nome").isEmpty() || o.optLong("dimensione", -1) < 0) continue
                 d.insertWithOnConflict("video", null, ContentValues().apply {
                     put("chiave", o.getString("chiave")); put("nome", o.getString("nome")); put("dimensione", o.getLong("dimensione"))
                     put("stato", o.getString("stato")); put("percorso_remoto", if (o.isNull("percorso_remoto")) null else o.getString("percorso_remoto"))

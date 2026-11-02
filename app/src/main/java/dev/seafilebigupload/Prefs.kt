@@ -16,8 +16,12 @@ class Prefs(ctx: Context) {
 
     /** Token per dispositivo (compare nell'elenco dei dispositivi collegati di Seafile e si revoca da lì). */
     var token: String
-        get() = (sp.getString("tokenCifrato", "") ?: "").let { if (it.isEmpty()) "" else Cripto.decifra(it) }
-        set(v) = sp.edit().putString("tokenCifrato", if (v.isEmpty()) "" else Cripto.cifra(v)).apply()
+        get() = tokenInMemoria ?: (sp.getString("tokenCifrato", "") ?: "").let { if (it.isEmpty()) "" else Cripto.decifra(it) }
+            .also { if (it.isNotEmpty()) tokenInMemoria = it }   // un risultato vuoto (Keystore momentaneamente non disponibile) non si ricorda
+        set(v) {
+            sp.edit().putString("tokenCifrato", if (v.isEmpty()) "" else Cripto.cifra(v)).apply()
+            tokenInMemoria = v.ifEmpty { null }
+        }
 
     /** Identificativo di questa installazione per Seafile: per Android il server accetta da 1 a 16 caratteri esadecimali (creato una volta). */
     val deviceId: String
@@ -136,10 +140,16 @@ class Prefs(ctx: Context) {
         sp.edit().remove("progNome").remove("progFatti").remove("progTot").remove("progIdx").remove("progN").remove("progFase").apply()
     }
 
+    private companion object {
+        /** Il token in chiaro resta solo nella memoria del processo (mai su disco): evita di rifare la decifratura a ogni lettura. */
+        @Volatile var tokenInMemoria: String? = null
+    }
+
     val configurato: Boolean get() = url.isNotEmpty() && token.isNotEmpty() && repoId.isNotEmpty()
 
     /** Dopo un accesso con un altro server/libreria il confronto iniziale va rifatto. */
     fun azzeraAccesso() {
+        tokenInMemoria = null
         sp.edit().remove("tokenCifrato").remove("repoId").remove("repoName").putBoolean("riconciliato", false).apply()
     }
 }

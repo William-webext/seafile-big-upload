@@ -34,6 +34,11 @@ class VideoWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx,
         Log.i("BigUpload", "giro avviato ($origine)")
         try {
             if (!p.configurato) return@withContext Result.success()
+            // se un altro giro sta già girando questo non deve fare niente: né toccare avanzamento e notifica del primo, né fermarlo
+            if (Caricatore.occupato()) {
+                Log.i("BigUpload", "giro non avviato: ce n'è già uno in corso")
+                return@withContext Result.success()
+            }
             val db = Db(applicationContext)
             try {
                 // prima si guarda, senza rete e senza notifiche, se c'è davvero qualcosa da fare
@@ -54,8 +59,10 @@ class VideoWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx,
                 }
                 p.interrompi = false
                 p.progFase = T.s(R.string.phase_checking)   // la barra compare subito, anche prima del primo file
+                var possiede = false   // solo chi ha davvero fatto il giro ripulisce avanzamento e notifica
                 try {
                     var ultimaNotifica = 0L
+                    possiede = true
                     val e = Caricatore.esegui(applicationContext, p, db, { isStopped || p.interrompi }, { msg ->
                         p.ultimoEsito = "${ora()}  $msg"
                     }) { nome, idx, n, fatti, tot ->
@@ -68,7 +75,7 @@ class VideoWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx,
                         }
                     }
                     Log.i("BigUpload", "giro finito: ${e?.caricati?.size} caricati, ${e?.falliti?.size} falliti, ${e?.inAttesa} in attesa")
-                    if (e == null) return@withContext Result.success()   // un altro giro è già in corso
+                    if (e == null) { possiede = false; return@withContext Result.success() }   // un altro giro è già in corso
                     val note = when {
                         e.caricati.isEmpty() -> ""
                         e.dateConservate == e.caricati.size -> T.s(R.string.note_dates_all)
@@ -100,8 +107,10 @@ class VideoWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx,
                     p.ultimoNote = msg
                     nm.notify(ID_ESITO, notificaEsito(T.s(R.string.notif_crash_title), msg))
                 } finally {
-                    p.azzeraProgresso()
-                    nm.cancel(ID_PROGRESSO)
+                    if (possiede) {
+                        p.azzeraProgresso()
+                        nm.cancel(ID_PROGRESSO)
+                    }
                 }
             } finally {
                 db.close()
@@ -109,7 +118,8 @@ class VideoWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx,
             Result.success()
         } finally {
             // il lavoro "al file nuovo" si riarma da solo: WorkManager lo fa partire una sola volta per ogni gruppo di modifiche
-            if (inputData.getBoolean(Pianifica.CHIAVE_TRIGGER, false)) Pianifica.armaTrigger(applicationContext, p, dopoQuestoGiro = true)
+            // ... ma solo se il caricamento automatico è ancora acceso (se l'utente l'ha spento mentre girava, non si riarma)
+            if (inputData.getBoolean(Pianifica.CHIAVE_TRIGGER, false) && p.automatico) Pianifica.armaTrigger(applicationContext, p, dopoQuestoGiro = true)
         }
     }
 
