@@ -563,14 +563,43 @@ class MainActivity : AppCompatActivity() {
     }
 
     /** Scelta della libreria dopo un accesso riuscito (con password o con SSO). */
-    private fun scegliLibreria(repos: List<Pair<String, String>>) {
+    private fun scegliLibreria(repos: List<Libreria>) {
+        if (repos.isEmpty()) {   // solo messaggio: con un elenco vuoto Android mostrerebbe un dialogo senza scelte
+            MaterialAlertDialogBuilder(this).setTitle(getString(R.string.library_none_title))
+                .setMessage(getString(R.string.library_none_msg))
+                .setPositiveButton(getString(R.string.ok), null).show()
+            return
+        }
+        // in questo dialogo con elenco niente setMessage (vedi la trappola dei dialoghi); di chi è ogni libreria sta nella riga stessa
         MaterialAlertDialogBuilder(this).setTitle(getString(R.string.library_title))
-            .setItems(repos.map { it.second }.toTypedArray()) { _, i ->
-                if (p.repoId != repos[i].first) p.riconciliato = false
-                p.repoId = repos[i].first; p.repoName = repos[i].second
-                messaggio(getString(R.string.signed_in))
-                mostra()
+            .setItems(repos.map { etichetta(it) }.toTypedArray()) { _, i ->
+                if (repos[i].origine == Origine.PROPRIA) usaLibreria(repos[i]) else confermaLibreriaAltrui(repos[i], repos)
             }.setCancelable(false).show()
+    }
+
+    /** Il nome della libreria come si legge nell'elenco e nelle schermate: per quelle non proprie dice sempre di chi sono. */
+    private fun etichetta(l: Libreria) = when (l.origine) {
+        Origine.PROPRIA -> l.nome
+        Origine.CONDIVISA -> getString(R.string.library_item_shared, l.nome, l.di)
+        Origine.GRUPPO -> getString(R.string.library_item_group, l.nome, l.di)
+    }
+
+    /** Una libreria che non è dell'utente si usa solo dopo una conferma esplicita: le foto finirebbero nello spazio di un'altra persona o di un gruppo. */
+    private fun confermaLibreriaAltrui(l: Libreria, repos: List<Libreria>) {
+        val testo = if (l.origine == Origine.GRUPPO) getString(R.string.library_other_msg_group, l.nome, l.di)
+            else getString(R.string.library_other_msg_shared, l.nome, l.di)
+        MaterialAlertDialogBuilder(this).setTitle(getString(R.string.library_other_title))
+            .setMessage(testo)
+            .setPositiveButton(getString(R.string.library_other_yes)) { _, _ -> usaLibreria(l) }
+            .setNegativeButton(getString(R.string.library_other_back)) { _, _ -> scegliLibreria(repos) }
+            .setCancelable(false).show()
+    }
+
+    private fun usaLibreria(l: Libreria) {
+        if (p.repoId != l.id) p.riconciliato = false
+        p.repoId = l.id; p.repoName = etichetta(l)
+        messaggio(getString(R.string.signed_in))
+        mostra()
     }
 
     /** "Accedi con Google": la schermata con la WebView ottiene il token per dispositivo dal server; le credenziali non passano mai da qui. */

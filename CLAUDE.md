@@ -60,6 +60,9 @@ Dipendenze: AndroidX core e appcompat, Material Components 1.12, WorkManager, Ok
 - **Un solo giro alla volta:** un lavoro che parte mentre un altro sta caricando (`Caricatore.occupato()`) esce subito e non tocca avanzamento né notifica; il trigger si riarma solo se il caricamento automatico è ancora acceso.
 - **Indirizzo del server:** solo `https://` (l'app aggiunge lo schema se manca e rifiuta `http://`; il link di caricamento che arriva dal server deve essere https). Scollegarsi chiede al server di revocare il token (`/api2/logout-device/`);
   un token revocato dal web risponde con `X-Seafile-Wiped` e vale come "accesso non valido".
+- **Scelta della libreria** dopo l'accesso (`SeafileClient.librerie`, `MainActivity.scegliLibreria`): `/api2/repos/` dà `type` = `repo` (propria), `srepo` (condivisa da altri), `grepo` (di gruppo); si offrono quelle scrivibili, le proprie per prime,
+  e ogni riga dice di chi è («Nome · condivisa da Anna», «Nome · gruppo X»). Scegliere una non propria chiede una **conferma esplicita** (dialogo con solo messaggio, «Sì, usala» / «Scegli un'altra»): niente foto nella libreria di un altro per sbaglio.
+  `Prefs.repoName` tiene l'etichetta con il proprietario, così le schermate lo mostrano sempre.
 - **Lingua dell'app:** all'avvio si applica solo se scelta in modo esplicito (non "automatica"), per non cancellare la scelta fatta dalle impostazioni di Android.
 
 - **Testi:** inglese di base in `res/values/strings.xml`, italiano in `res/values-it/strings.xml`, **stesse chiavi**. Mai testi scritti nel codice: nelle schermate `getString(R.string.x)`, fuori dalle schermate `T.s(R.string.x, …)`.

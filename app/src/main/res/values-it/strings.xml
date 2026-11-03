@@ -168,7 +168,16 @@
     <string name="btn_signin">Accedi</string>
     <string name="signing_in">Accesso in corso…</string>
     <string name="enter_fields">Scrivi indirizzo, utente e password</string>
-    <string name="library_title">Libreria con le foto e i video</string>
+    <string name="library_title">Dove salvare foto e video</string>
+    <string name="library_item_shared">%1$s · condivisa da %2$s</string>
+    <string name="library_item_group">%1$s · gruppo %2$s</string>
+    <string name="library_other_title">Non è una tua libreria</string>
+    <string name="library_other_msg_shared">«%1$s» non è tua: appartiene a %2$s. Le tue foto e i tuoi video verrebbero caricati lì dentro e %2$s e tutti quelli con cui la libreria è condivisa potrebbero vederli. Vuoi usarla lo stesso?</string>
+    <string name="library_other_msg_group">«%1$s» non è tua: appartiene al gruppo %2$s. Le tue foto e i tuoi video verrebbero caricati lì dentro e tutti i membri del gruppo potrebbero vederli. Vuoi usarla lo stesso?</string>
+    <string name="library_other_yes">Sì, usala</string>
+    <string name="library_other_back">Scegli un\'altra</string>
+    <string name="library_none_title">Nessuna libreria dove salvare</string>
+    <string name="library_none_msg">Il tuo account non ha nessuna libreria su cui l\'app possa scrivere. Crea una libreria in Seafile (o chiedi il permesso di scrittura su una condivisa) e accedi di nuovo.</string>
     <string name="signed_in">Accesso eseguito. Ora accendi «Caricamento automatico»</string>
     <string name="login_failed_title">Accesso non riuscito</string>
     <string name="login_failed_msg">%1$s\n\nNon ritentare più volte: dopo 3 errori il server chiede il captcha e blocca anche le altre app. Il pulsante resta spento per un minuto.</string>

@@ -20,8 +20,8 @@ android {
         applicationId = "dev.seafilebigupload"
         minSdk = 26
         targetSdk = 35
-        versionCode = 10
-        versionName = "0.5.4"
+        versionCode = 11
+        versionName = "0.5.5"
     }
 
     signingConfigs {
@@ -62,4 +62,5 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")   // l'org.json di Android nelle prove è vuoto: serve quello vero per provare l'elenco delle librerie
 }

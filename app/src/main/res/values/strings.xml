@@ -169,7 +169,16 @@
     <string name="btn_signin">Sign in</string>
     <string name="signing_in">Signing in…</string>
     <string name="enter_fields">Enter address, username and password</string>
-    <string name="library_title">Library for photos and videos</string>
+    <string name="library_title">Where to save photos and videos</string>
+    <string name="library_item_shared">%1$s · shared by %2$s</string>
+    <string name="library_item_group">%1$s · group %2$s</string>
+    <string name="library_other_title">Not your library</string>
+    <string name="library_other_msg_shared">“%1$s” is not yours: it belongs to %2$s. Your photos and videos would be uploaded into it, and %2$s and everyone the library is shared with could see them. Use it anyway?</string>
+    <string name="library_other_msg_group">“%1$s” is not yours: it belongs to the group %2$s. Your photos and videos would be uploaded into it, and all the members of the group could see them. Use it anyway?</string>
+    <string name="library_other_yes">Yes, use it</string>
+    <string name="library_other_back">Choose another</string>
+    <string name="library_none_title">No library to save to</string>
+    <string name="library_none_msg">Your account has no library the app can write to. Create a library in Seafile (or ask for write access to a shared one) and sign in again.</string>
     <string name="signed_in">Signed in. Now turn on “Automatic upload”</string>
     <string name="login_failed_title">Sign-in failed</string>
     <string name="login_failed_msg">%1$s\n\nDo not retry several times: after 3 errors the server asks for a captcha and also blocks the other apps. The button stays off for a minute.</string>

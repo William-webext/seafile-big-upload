@@ -19,6 +19,12 @@ import java.util.concurrent.TimeUnit
 
 data class RemoteFile(val name: String, val size: Long, val dir: String)
 
+/** Di chi è una libreria: dell'utente, condivisa da un'altra persona o di un gruppo. */
+enum class Origine { PROPRIA, CONDIVISA, GRUPPO }
+
+/** Una libreria su cui si può scrivere; `di` è il nome della persona (condivisa) o del gruppo, vuoto se è propria. */
+data class Libreria(val id: String, val nome: String, val origine: Origine, val di: String)
+
 /** Il token non è più valido (revocato dal web o scaduto): inutile riprovare finché non si rifà l'accesso. */
 class AuthException(msg: String) : IOException(msg)
 
@@ -84,15 +90,12 @@ class SeafileClient(base: String, private val token: String? = null) {
         http.newCall(request("/api2/logout-device/").post(FormBody.Builder().build()).build()).execute().use { it.body?.close() }
     }
 
-    /** Librerie su cui l'utente può scrivere: coppie (id, nome). */
-    fun repos(): List<Pair<String, String>> {
+    /** Le librerie su cui l'utente può scrivere: prima le sue, poi quelle condivise da altri e di gruppo (da confermare a parte). */
+    fun repos(): List<Libreria> {
         http.newCall(request("/api2/repos/").get().build()).execute().use { r ->
             val body = r.body?.string().orEmpty()
             if (!r.isSuccessful) throw fail(T.s(R.string.what_libraries), r.code, body, r.header("X-Seafile-Wiped") != null)
-            val a = JSONArray(body)
-            return (0 until a.length()).map { a.getJSONObject(it) }
-                .filter { it.optString("permission") == "rw" }
-                .map { it.getString("id") to it.getString("name") }
+            return librerie(JSONArray(body))
         }
     }
 
@@ -262,8 +265,26 @@ class SeafileClient(base: String, private val token: String? = null) {
     }
 
     companion object {
+        /**
+         * Dall'elenco di `/api2/repos/` le librerie scrivibili, con di chi sono: `type` "repo" = propria, "srepo" = condivisa da un'altra persona,
+         * "grepo" = di un gruppo (senza `type` si presume propria). Le proprie vengono prima, poi le altre; ognuna in ordine alfabetico.
+         */
+        fun librerie(a: JSONArray): List<Libreria> =
+            (0 until a.length()).map { a.getJSONObject(it) }
+                .filter { it.optString("permission") == "rw" }
+                .map {
+                    val origine = when (it.optString("type", "repo")) { "srepo" -> Origine.CONDIVISA; "grepo" -> Origine.GRUPPO; else -> Origine.PROPRIA }
+                    val di = when (origine) {
+                        Origine.PROPRIA -> ""
+                        Origine.GRUPPO -> it.optString("group_name").ifBlank { it.optString("owner") }
+                        Origine.CONDIVISA -> listOf("owner_name", "owner_nickname", "owner_contact_email", "owner").map { k -> it.optString(k) }.firstOrNull { s -> s.isNotBlank() }.orEmpty()
+                    }
+                    Libreria(it.getString("id"), it.getString("name"), origine, di)
+                }
+                .sortedWith(compareBy<Libreria> { it.origine != Origine.PROPRIA }.thenBy { it.nome.lowercase(Locale.ROOT) })
+
         const val CHUNK = 8 * 1024 * 1024
-        const val CLIENT_VERSION = "0.5.4"
+        const val CLIENT_VERSION = "0.5.5"
         const val UA = "Seafile-Big-Upload/$CLIENT_VERSION"
     }
 }
