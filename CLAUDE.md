@@ -81,6 +81,27 @@ Dipendenze: AndroidX core e appcompat, Material Components 1.12, WorkManager, Ok
 - Diagnosi sul telefono: `adb logcat -d | grep -E "BigUpload|WM-"`; `adb shell dumpsys jobscheduler` (job dell'app, vincoli soddisfatti, bucket di standby); `adb shell cmd jobscheduler run -f -n androidx.work.systemjobscheduler <pacchetto> <id>`
   (un job periodico forzato prima del tempo viene rimandato da WorkManager: non prova niente).
 
+## Idea futura (non iniziata): modificare file Office dal telefono
+
+Decisione dell'ideatore del 3/11/2026: **non adesso**; da fare in una sessione di lavoro separata. Prima di cominciare leggere questo file e `NOTE-PRIVATE.md` (lì c'è il contesto del server dell'autore e dove trovare il suo progetto, che ha un proprio `CLAUDE.md` privato).
+
+**Il problema** (osservato con l'app ufficiale 4.0.14 e un server Seafile con editor online ONLYOFFICE Community):
+- il tocco su un file Office apre la pagina web dell'editor: sul telefono la Community la apre solo in visualizzazione (le modifiche dall'editor mobile sul web richiedono una licenza commerciale); per modificare serve la pressione lunga → Apri → app ONLYOFFICE Documents;
+- l'apertura nell'editor web blocca il file sul server (blocco "OnlineOffice", dura qualche secondo dopo la chiusura, fino a 40 minuti se il segnale di chiusura non arriva): se l'app ufficiale carica la modifica nello stesso istante riceve 403 da `update-api`,
+  mostra solo un messaggio che sparisce e non riprova finché non la si riavvia (`LocalFileUpdater`: `file/detail` → `update-link` → `update-api`; nessun pulsante "carica ora");
+- la copia in cache può essere vecchia (il pallino accanto al file compare quando l'`id` sul server è uguale a `local_file_id`) e ricaricarla sovrascrive la versione più nuova del server.
+
+**Obiettivo:** una modalità "Documenti" nell'app che replichi quello che fa l'app ufficiale, con le nostre regole:
+1. sfogliare librerie e cartelle (`/api/v2.1/repos/`, `…/dir/`) o, in una prima versione ridotta, solo un elenco di file preferiti;
+2. scaricare il file (`file/?op=download`) e **aprirlo direttamente** nell'app di modifica (ONLYOFFICE Documents) con permesso di scrittura, senza la pagina web in sola lettura;
+3. rilevare la modifica e caricarla (`update-link` + `update-api` con `target_file`) **solo se la versione sul server è ancora quella scaricata** (confronto `id`/data); altrimenti non sovrascrivere mai in silenzio: chiedere (salva come copia, riprova, scarta);
+4. se il server risponde 403 (file bloccato, per esempio da una modifica aperta sul PC) riprovare con attese crescenti e dire all'utente perché; pulsante "Carica ora";
+5. mostrare lo stato di ogni file (aggiornato, da caricare, in conflitto, bloccato) e non cancellare mai niente dal telefono né dal server.
+
+**Da riusare:** accesso (password, 2FA, SSO), token cifrato, `SeafileClient`, registro SQLite, WorkManager, testi in due lingue, prove automatiche sulla logica pura.
+**Da verificare sul telefono prima di costruire:** che l'app di modifica scriva il file in un modo che l'app rilevi (permesso di scrittura via `FileProvider`, `FileObserver`/controllo al ritorno in primo piano), anche con Android 15+ e l'app in sottofondo;
+la modifica da telefono su una copia scaricata non resta mai senza controllo prima del caricamento. L'editor mobile di ONLYOFFICE non ha un salvataggio senza uscire (si salva con la freccia → Sì): è un limite di quell'app, non nostro.
+
 ## Cose da sapere
 
 - Il fileserver di Seafile legge il campo `last_modify` in caricamento (anche a pezzi: vale quello dell'ultimo); l'app ufficiale lo manda, per questo le foto già caricate hanno la data giusta.
