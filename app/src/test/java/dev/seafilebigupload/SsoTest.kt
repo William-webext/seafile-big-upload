@@ -10,10 +10,10 @@ class SsoTest {
 
     @Test
     fun indirizzo_haITuttiIParametri() {
-        val u = Sso.indirizzoAccesso("https://seafile.example.com/", "a1b2c3d4e5f60718", "Seafile Big Upload (SM-S911B)", "0.5.5", "15")
+        val u = Sso.indirizzoAccesso("https://seafile.example.com/", "a1b2c3d4e5f60718", "Seafile Big Upload (SM-S911B)", "0.6.0", "15")
         assertEquals(
             "https://seafile.example.com/shib-login?shib_platform=android&shib_device_id=a1b2c3d4e5f60718" +
-                "&shib_device_name=Seafile%20Big%20Upload%20%28SM-S911B%29&shib_client_version=0.5.5&shib_platform_version=15", u
+                "&shib_device_name=Seafile%20Big%20Upload%20%28SM-S911B%29&shib_client_version=0.6.0&shib_platform_version=15", u
         )
     }
 

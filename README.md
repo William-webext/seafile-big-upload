@@ -23,6 +23,7 @@ that does the whole job on its own.
 - **Safety check you can tune**: every 15 minutes, hourly (default), every 6 hours, daily or weekly. Empty checks make no network requests and show no notification.
 - **Wi-Fi only** by default, with progress shown during the comparison and the upload.
 - **Sign in with username, password and 2FA, or with single sign-on (Google)** if your server has it enabled: the same flow as the official Android app (`/shib-login` in a WebView), no server changes needed.
+- **Upload any file or folder by hand**: pick files or a whole folder on the phone, browse your libraries and folders on the server, and if a file already exists choose *Cancel*, *Overwrite* or *Keep both* (`name (1).ext`, like Windows). Big files are sent in chunks too.
 - **Per-device token** (shows up in Seafile's *Connected devices* and can be revoked there); your password is never stored, the token is encrypted with a key that stays on the phone.
 - **Save / restore the registry and settings** to a file, for reinstalls or a new phone.
 - English and Italian, with a language picker (default: your phone's language, English unless it is Italian).

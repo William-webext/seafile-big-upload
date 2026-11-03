@@ -128,6 +128,17 @@ class SeafileClient(base: String, private val token: String? = null) {
         }
     }
 
+    /** Nomi dei file (non delle cartelle) direttamente dentro `dir`, senza scendere nelle sottocartelle; vuoto se la cartella non esiste ancora. */
+    fun nomiFile(repoId: String, dir: String): Set<String> {
+        http.newCall(request("/api2/repos/$repoId/dir/?p=${enc(dir)}&t=f").get().build()).execute().use { r ->
+            val body = r.body?.string().orEmpty()
+            if (r.code == 404) return emptySet()
+            if (!r.isSuccessful) throw fail(T.s(R.string.what_files), r.code, body, r.header("X-Seafile-Wiped") != null)
+            val a = JSONArray(body)
+            return (0 until a.length()).map { a.getJSONObject(it) }.filter { it.optString("type", "file") == "file" }.map { it.getString("name") }.toHashSet()
+        }
+    }
+
     /** Dimensione e data di modifica (secondi) del file sul server, o null se non esiste. */
     fun remoteDetail(repoId: String, path: String): Pair<Long, Long>? {
         http.newCall(request("/api2/repos/$repoId/file/detail/?p=${enc(path)}").get().build()).execute().use { r ->
@@ -184,16 +195,17 @@ class SeafileClient(base: String, private val token: String? = null) {
     /**
      * Carica un file nella cartella `parentDir`. Sopra gli 8 MiB lo manda a pezzi con Content-Range, come fa
      * l'app Seafile sopra i 200 MiB: ogni richiesta resta molto sotto il limite di 100 MB di Cloudflare.
-     * Se esiste già un file con quel nome il server non lo sovrascrive (replace=0). `fermato` si controlla tra un pezzo e l'altro.
+     * Se esiste già un file con quel nome il server non lo sovrascrive (replace=0), a meno che `sovrascrivi` sia deciso da una persona
+     * (il caricamento a mano con la scelta "Sovrascrivi"). `fermato` si controlla tra un pezzo e l'altro.
      */
-    fun upload(link: String, parentDir: String, name: String, size: Long, modificatoMs: Long, open: () -> InputStream, fermato: () -> Boolean, progress: (Long) -> Unit) {
+    fun upload(link: String, parentDir: String, name: String, size: Long, modificatoMs: Long, open: () -> InputStream, fermato: () -> Boolean, sovrascrivi: Boolean = false, progress: (Long) -> Unit) {
         // data di modifica originale del file, come la vuole il fileserver di Seafile (campo last_modify, RFC 3339); se non la accetta la ignora
         val lastModify = if (modificatoMs > 0) SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US).apply { timeZone = TimeZone.getTimeZone("UTC") }.format(Date(modificatoMs)) else null
         open().use { input ->
             if (size <= CHUNK) {
                 val buf = ByteArray(size.toInt())
                 if (readFully(input, buf) != size.toInt()) throw IOException(T.s(R.string.err_incomplete_read, name))
-                sendChunk(link, parentDir, name, buf, buf.size, null, lastModify, fermato)
+                sendChunk(link, parentDir, name, buf, buf.size, null, lastModify, fermato, sovrascrivi)
                 progress(size)
                 return
             }
@@ -203,20 +215,20 @@ class SeafileClient(base: String, private val token: String? = null) {
                 if (fermato()) throw InterruptedUpload()
                 val n = readFully(input, buf)
                 if (n <= 0) throw IOException(T.s(R.string.err_read_interrupted, name, start))
-                sendChunk(link, parentDir, name, buf, n, Triple(start, start + n - 1, size), lastModify, fermato)
+                sendChunk(link, parentDir, name, buf, n, Triple(start, start + n - 1, size), lastModify, fermato, sovrascrivi)
                 start += n
                 progress(start)
             }
         }
     }
 
-    private fun sendChunk(link: String, parentDir: String, name: String, buf: ByteArray, n: Int, range: Triple<Long, Long, Long>?, lastModify: String?, fermato: () -> Boolean) {
+    private fun sendChunk(link: String, parentDir: String, name: String, buf: ByteArray, n: Int, range: Triple<Long, Long, Long>?, lastModify: String?, fermato: () -> Boolean, sovrascrivi: Boolean) {
         var errore: IOException? = null
         for (tentativo in 1..3) {
             try {
                 val builder = MultipartBody.Builder().setType(MultipartBody.FORM)
                     .addFormDataPart("parent_dir", parentDir)
-                    .addFormDataPart("replace", "0")
+                    .addFormDataPart("replace", if (sovrascrivi) "1" else "0")
                 if (lastModify != null) builder.addFormDataPart("last_modify", lastModify)
                 val body = builder
                     .addFormDataPart("file", name, buf.toRequestBody("application/octet-stream".toMediaType(), 0, n))
@@ -284,7 +296,7 @@ class SeafileClient(base: String, private val token: String? = null) {
                 .sortedWith(compareBy<Libreria> { it.origine != Origine.PROPRIA }.thenBy { it.nome.lowercase(Locale.ROOT) })
 
         const val CHUNK = 8 * 1024 * 1024
-        const val CLIENT_VERSION = "0.5.5"
+        const val CLIENT_VERSION = "0.6.0"
         const val UA = "Seafile-Big-Upload/$CLIENT_VERSION"
     }
 }

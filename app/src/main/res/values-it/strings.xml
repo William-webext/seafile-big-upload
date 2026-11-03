@@ -194,6 +194,38 @@
     <string name="sso_error_ssl">Il certificato di sicurezza di %1$s non è valido: accesso interrotto.</string>
     <string name="sso_failed_msg">%1$s\n\nIl token di accesso non è stato accettato dal server ed è stato scartato.</string>
 
+    <!-- carica file o cartella a mano -->
+    <string name="btn_upload_files">Carica file o cartella</string>
+    <string name="manual_pick_title">Carica da questo telefono</string>
+    <string name="manual_pick_files">File</string>
+    <string name="manual_pick_folder">Una cartella intera</string>
+    <string name="manual_reading">Leggo quello che hai scelto…</string>
+    <string name="manual_checking">Controllo cosa c\'è già sul server…</string>
+    <string name="manual_nothing">Niente da caricare</string>
+    <string name="manual_busy">Un altro caricamento di questo tipo è ancora in corso. Aspetta che finisca, oppure fermalo dalla notifica.</string>
+    <string name="dest_lib_title">Dove caricare: scegli una libreria</string>
+    <string name="dest_here">Carica qui</string>
+    <string name="dest_other_libs">‹  Altre librerie</string>
+    <string name="dest_failed">Impossibile leggere: %1$s</string>
+    <string name="conflict_title">Il file esiste già</string>
+    <string name="conflict_msg">«%1$s» esiste già in %2$s sul server.\n\nAnnulla o salta: non viene caricato.\nSovrascrivi: il file sul server viene sostituito.\nTieni entrambi: il nuovo viene salvato come «%3$s».</string>
+    <string name="conflict_skip">Salta</string>
+    <string name="conflict_overwrite">Sovrascrivi</string>
+    <string name="conflict_keep">Tieni entrambi</string>
+    <string name="conflict_all">Stessa risposta per gli altri %1$d file già presenti</string>
+    <string name="manual_confirm_title">Caricare questi file?</string>
+    <string name="manual_confirm_msg">%1$d file (%2$s) verranno caricati in %3$s.</string>
+    <string name="manual_confirm_overwrite">%1$d di questi sostituiranno un file con lo stesso nome sul server.</string>
+    <string name="manual_confirm_skipped">%1$d elementi sono stati lasciati fuori perché il telefono non ne dà la dimensione.</string>
+    <string name="manual_confirm_yes">Carica</string>
+    <string name="manual_started">Caricamento avviato: %1$d file. L\'avanzamento è nella notifica.</string>
+    <string name="manual_started_wifi">Caricamento di %1$d file in coda: parte quando il telefono è sul Wi-Fi (o spegni «Solo Wi-Fi»).</string>
+    <string name="manual_starting">Avvio il caricamento…</string>
+    <string name="manual_progress">(%1$d/%2$d) %3$s</string>
+    <string name="manual_stopped">Caricamento fermato: %1$d file su %2$d caricati</string>
+    <string name="manual_result_ok">%1$d file caricati</string>
+    <string name="manual_result_fail">%1$d file caricati, %2$d con errore</string>
+
     <!-- azioni -->
     <string name="signin_first">Prima accedi a Seafile</string>
     <string name="upload_started">Avviato: controllo i file e carico quelli che mancano</string>

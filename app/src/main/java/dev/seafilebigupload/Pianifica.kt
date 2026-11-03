@@ -22,7 +22,7 @@ object Pianifica {
     const val LAVORO_RIPROVA = "video-riprova"
     const val LAVORO_ORA = "video-ora"
 
-    private fun rete(p: Prefs) = if (p.soloWifi) NetworkType.UNMETERED else NetworkType.CONNECTED
+    fun rete(p: Prefs) = if (p.soloWifi) NetworkType.UNMETERED else NetworkType.CONNECTED
 
     private fun richiestaTrigger(p: Prefs): OneTimeWorkRequest {
         val vincoli = Constraints.Builder().setRequiredNetworkType(rete(p))

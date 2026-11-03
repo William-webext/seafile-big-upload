@@ -16,6 +16,7 @@ import android.text.InputType
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -23,6 +24,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.WindowCompat
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.google.android.material.appbar.MaterialToolbar
@@ -66,6 +70,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var errori: TextView
     private lateinit var bCarica: MaterialButton
     private lateinit var bInterrompi: MaterialButton
+    private lateinit var bFile: MaterialButton
 
     // accesso
     private lateinit var cardAccesso: MaterialCardView
@@ -101,6 +106,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var rInfo: Ui.Riga
 
     private val esportaLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri -> if (uri != null) esportaIn(uri) }
+    private val scegliFileLauncher = registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris -> if (uris.isNotEmpty()) dopoSceltaLocale(uris, null) }
+    private val scegliCartellaLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri -> if (uri != null) dopoSceltaLocale(emptyList(), uri) }
     private val importaLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> if (uri != null) importaDa(uri) }
 
     private val aggiorna = object : Runnable {
@@ -196,11 +203,13 @@ class MainActivity : AppCompatActivity() {
             addView(bCarica); addView(bInterrompi)
             addView(bElenco, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { marginStart = Ui.dp(ctx, 10) })
         }
+        bFile = MaterialButton(ctx, null, M.attr.materialButtonOutlinedStyle).apply { text = getString(R.string.btn_upload_files); setOnClickListener { apriCaricaManuale() } }
         val interno = LinearLayout(ctx).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(Ui.dp(ctx, 20), Ui.dp(ctx, 18), Ui.dp(ctx, 20), Ui.dp(ctx, 16))
             addView(statoTitolo); addView(statoDettaglio); addView(barra); addView(barraTesto)
             addView(contatori); addView(errori); addView(pulsanti)
+            addView(bFile, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = Ui.dp(ctx, 8) })
         }
         colonna.addView(scheda(interno), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
             setMargins(Ui.dp(ctx, 16), Ui.dp(ctx, 8), Ui.dp(ctx, 16), 0)
@@ -413,6 +422,7 @@ class MainActivity : AppCompatActivity() {
         bCarica.visibility = if (corso || avvio) View.GONE else View.VISIBLE
         bInterrompi.visibility = if (corso || avvio) View.VISIBLE else View.GONE
         bCarica.isEnabled = configurato
+        bFile.isEnabled = configurato
 
         // --- interruttori: riflettono lo stato vero, non l'ultimo clic
         aggiornandoInterruttori = true
@@ -578,11 +588,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /** Il nome della libreria come si legge nell'elenco e nelle schermate: per quelle non proprie dice sempre di chi sono. */
-    private fun etichetta(l: Libreria) = when (l.origine) {
-        Origine.PROPRIA -> l.nome
-        Origine.CONDIVISA -> getString(R.string.library_item_shared, l.nome, l.di)
-        Origine.GRUPPO -> getString(R.string.library_item_group, l.nome, l.di)
-    }
+    private fun etichetta(l: Libreria) = etichettaLibreria(this, l)
 
     /** Una libreria che non è dell'utente si usa solo dopo una conferma esplicita: le foto finirebbero nello spazio di un'altra persona o di un gruppo. */
     private fun confermaLibreriaAltrui(l: Libreria, repos: List<Libreria>) {
@@ -633,6 +639,114 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    // ---------------------------------------------------------------- carica file o cartella a mano
+
+    /** "Carica file o cartella": scelta di cosa (selettore di sistema), poi dove (librerie e cartelle), poi i conflitti e una conferma. */
+    private fun apriCaricaManuale() {
+        if (!p.configurato) { messaggio(getString(R.string.signin_first)); return }
+        thread {
+            val occupato = try { Manuale.inCorso(this) } catch (_: Exception) { false }
+            ui.post {
+                if (!vivo()) return@post
+                if (occupato) { messaggio(getString(R.string.manual_busy)); return@post }
+                // dialogo con elenco: niente setMessage
+                MaterialAlertDialogBuilder(this).setTitle(getString(R.string.manual_pick_title))
+                    .setItems(arrayOf(getString(R.string.manual_pick_files), getString(R.string.manual_pick_folder))) { _, i ->
+                        if (i == 0) scegliFileLauncher.launch(arrayOf("*/*")) else scegliCartellaLauncher.launch(null)
+                    }.setNegativeButton(getString(R.string.cancel), null).show()
+            }
+        }
+    }
+
+    private fun dialogoAttesa(testo: String): androidx.appcompat.app.AlertDialog =
+        MaterialAlertDialogBuilder(this).setMessage(testo).setCancelable(false).show()
+
+    /** Scelti i file o la cartella: si leggono (anche le sottocartelle), poi si sceglie la destinazione sul server. */
+    private fun dopoSceltaLocale(uris: List<Uri>, albero: Uri?) {
+        val permessi = if (albero != null) listOf(albero) else uris
+        for (u in permessi) try { contentResolver.takePersistableUriPermission(u, Intent.FLAG_GRANT_READ_URI_PERMISSION) } catch (_: Exception) { /* il permesso temporaneo basta finché l'app resta viva */ }
+        val attesa = dialogoAttesa(getString(R.string.manual_reading))
+        thread {
+            val scansione = try { if (albero != null) Locali.daCartella(this, albero) else Locali.daFile(this, uris) } catch (_: Exception) { null }
+            ui.post {
+                attesa.dismiss()
+                if (!vivo()) return@post
+                if (scansione == null || scansione.voci.isEmpty()) { messaggio(getString(R.string.manual_nothing)); return@post }
+                SceltaDestinazione(this, p) { dest -> preparaCarica(scansione, dest, permessi.map { it.toString() }) }.avvia()
+            }
+        }
+    }
+
+    /** Guarda cosa c'è già sul server nelle cartelle di destinazione e, se serve, chiede cosa fare per i file con lo stesso nome. */
+    private fun preparaCarica(scansione: Scansione, dest: Destinazione, permessi: List<String>) {
+        val attesa = dialogoAttesa(getString(R.string.manual_checking))
+        thread {
+            try {
+                val client = SeafileClient(p.url, p.token)
+                val dirs = scansione.voci.map { Trasferimento.dirRemota(dest.dir, it.sub) }.distinct()
+                val esistenti = dirs.associateWith { client.nomiFile(dest.repoId, it) }
+                val conflitti = Trasferimento.conflitti(scansione.voci, dest.dir, esistenti)
+                ui.post {
+                    attesa.dismiss()
+                    if (vivo()) chiediConflitti(scansione, dest, esistenti, conflitti, 0, HashMap(), permessi)
+                }
+            } catch (e: Exception) {
+                ui.post {
+                    attesa.dismiss()
+                    if (vivo()) MaterialAlertDialogBuilder(this).setTitle(getString(R.string.dest_failed, getString(R.string.what_files))).setMessage(e.message).setPositiveButton(getString(R.string.ok), null).show()
+                }
+            }
+        }
+    }
+
+    /** Un dialogo per ogni file già presente (Annulla / Sovrascrivi / Tieni entrambi), con la possibilità di dare la stessa risposta a tutti i restanti. */
+    private fun chiediConflitti(
+        scansione: Scansione, dest: Destinazione, esistenti: Map<String, Set<String>>,
+        conflitti: List<Int>, k: Int, scelte: MutableMap<Int, Scelta>, permessi: List<String>,
+    ) {
+        if (k >= conflitti.size) { riepilogoCarica(scansione, dest, esistenti, scelte, permessi); return }
+        val i = conflitti[k]; val v = scansione.voci[i]
+        val restanti = conflitti.size - k
+        val tutti = CheckBox(this).apply { text = getString(R.string.conflict_all, restanti - 1); visibility = if (restanti > 1) View.VISIBLE else View.GONE }
+        val contenitore = LinearLayout(this).apply { setPadding(Ui.dp(this@MainActivity, 24), Ui.dp(this@MainActivity, 8), Ui.dp(this@MainActivity, 24), 0); addView(tutti) }
+        val dir = Trasferimento.dirRemota(dest.dir, v.sub)
+        fun risposta(s: Scelta) {
+            if (tutti.isChecked) { for (j in k until conflitti.size) scelte[conflitti[j]] = s; chiediConflitti(scansione, dest, esistenti, conflitti, conflitti.size, scelte, permessi) }
+            else { scelte[i] = s; chiediConflitti(scansione, dest, esistenti, conflitti, k + 1, scelte, permessi) }
+        }
+        MaterialAlertDialogBuilder(this).setTitle(getString(R.string.conflict_title))
+            .setMessage(getString(R.string.conflict_msg, v.nome, dir, Trasferimento.nomeNuovo(v, dest.dir, esistenti)))
+            .setView(contenitore)
+            .setNegativeButton(getString(if (conflitti.size > 1) R.string.conflict_skip else R.string.cancel)) { _, _ -> risposta(Scelta.ANNULLA) }
+            .setNeutralButton(getString(R.string.conflict_overwrite)) { _, _ -> risposta(Scelta.SOVRASCRIVI) }
+            .setPositiveButton(getString(R.string.conflict_keep)) { _, _ -> risposta(Scelta.TIENI_ENTRAMBI) }
+            .setCancelable(false).show()
+    }
+
+    /** Ultima conferma, con dove andranno i file, poi parte il lavoro in sottofondo. */
+    private fun riepilogoCarica(scansione: Scansione, dest: Destinazione, esistenti: Map<String, Set<String>>, scelte: Map<Int, Scelta>, permessi: List<String>) {
+        val azioni = Trasferimento.costruisci(scansione.voci, dest.dir, esistenti, scelte)
+        if (azioni.isEmpty()) { Manuale.rilascia(this); messaggio(getString(R.string.manual_nothing)); return }
+        val sovrascritti = azioni.count { it.sovrascrivi }
+        val testo = buildString {
+            append(getString(R.string.manual_confirm_msg, azioni.size, Caricatore.mb(azioni.sumOf { it.dimensione }), "${dest.etichetta}: ${dest.dir}"))
+            if (sovrascritti > 0) append("\n").append(getString(R.string.manual_confirm_overwrite, sovrascritti))
+            if (scansione.saltati > 0) append("\n").append(getString(R.string.manual_confirm_skipped, scansione.saltati))
+        }
+        MaterialAlertDialogBuilder(this).setTitle(getString(R.string.manual_confirm_title)).setMessage(testo)
+            .setPositiveButton(getString(R.string.manual_confirm_yes)) { _, _ ->
+                thread {
+                    Manuale.salva(this, LavoroManuale(dest.repoId, dest.dir, azioni, permessi))
+                    val rq = OneTimeWorkRequestBuilder<CaricaManualeWorker>()
+                        .setConstraints(Constraints.Builder().setRequiredNetworkType(Pianifica.rete(p)).build()).build()
+                    WorkManager.getInstance(this).enqueueUniqueWork(Manuale.LAVORO, ExistingWorkPolicy.KEEP, rq)
+                    ui.post { if (vivo()) messaggio(getString(if (p.soloWifi) R.string.manual_started_wifi else R.string.manual_started, azioni.size)) }
+                }
+            }
+            .setNegativeButton(getString(R.string.cancel)) { _, _ -> }
+            .setCancelable(false).show()
     }
 
     private fun esci() {

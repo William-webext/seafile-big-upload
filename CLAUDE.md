@@ -63,6 +63,12 @@ Dipendenze: AndroidX core e appcompat, Material Components 1.12, WorkManager, Ok
 - **Scelta della libreria** dopo l'accesso (`SeafileClient.librerie`, `MainActivity.scegliLibreria`): `/api2/repos/` dà `type` = `repo` (propria), `srepo` (condivisa da altri), `grepo` (di gruppo); si offrono quelle scrivibili, le proprie per prime,
   e ogni riga dice di chi è («Nome · condivisa da Anna», «Nome · gruppo X»). Scegliere una non propria chiede una **conferma esplicita** (dialogo con solo messaggio, «Sì, usala» / «Scegli un'altra»): niente foto nella libreria di un altro per sbaglio.
   `Prefs.repoName` tiene l'etichetta con il proprietario, così le schermate lo mostrano sempre.
+- **Carica file o cartella a mano** (pulsante nella scheda di stato; `Locali.kt`, `SceltaDestinazione.kt`, `Trasferimento.kt`, `CaricaManuale.kt`): selettore di sistema (SAF, `OpenMultipleDocuments` / `OpenDocumentTree`, niente permessi di archiviazione),
+  poi si sceglie la destinazione sfogliando librerie (con proprietario e conferma per le non proprie) e cartelle, poi per ogni file già presente (`GET …/dir/?t=f`, nomi) un dialogo **Annulla / Sovrascrivi / Tieni entrambi**
+  (`nome (1).ext` come Windows, `Trasferimento.conSuffisso`; con casella «stessa risposta per gli altri»); senza risposta si salta, **mai sovrascrivere nel dubbio**. Sovrascrivere = `replace=1` su `upload-api`.
+  Una cartella si ricrea sul server con le sottocartelle (`assicuraCartella`). Ultima conferma con numero, dimensione e destinazione. Il lavoro (`CaricaManualeWorker`, WorkManager + servizio in primo piano, notifica con «Stop») sta in
+  `filesDir/manuale.json` e i file già fatti in `manuale-fatti.txt` (riparte da lì se il sistema lo ferma); controllo finale di dimensione dopo ogni file; rispetta «Solo Wi-Fi»; un solo lavoro manuale alla volta.
+  Indipendente dal registro e dal giro automatico (non usa `Db` né il lucchetto di `Caricatore`). Da provare sul telefono: tutto quello che tocca SAF e le notifiche (le prove automatiche coprono solo nomi e conflitti).
 - **Lingua dell'app:** all'avvio si applica solo se scelta in modo esplicito (non "automatica"), per non cancellare la scelta fatta dalle impostazioni di Android.
 
 - **Testi:** inglese di base in `res/values/strings.xml`, italiano in `res/values-it/strings.xml`, **stesse chiavi**. Mai testi scritti nel codice: nelle schermate `getString(R.string.x)`, fuori dalle schermate `T.s(R.string.x, …)`.

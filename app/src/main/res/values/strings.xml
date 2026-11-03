@@ -195,6 +195,38 @@
     <string name="sso_error_ssl">The security certificate of %1$s is not valid: sign-in stopped.</string>
     <string name="sso_failed_msg">%1$s\n\nThe sign-in token was not accepted by the server and has been discarded.</string>
 
+    <!-- upload files or a folder by hand -->
+    <string name="btn_upload_files">Upload files or a folder</string>
+    <string name="manual_pick_title">Upload from this phone</string>
+    <string name="manual_pick_files">Files</string>
+    <string name="manual_pick_folder">A whole folder</string>
+    <string name="manual_reading">Reading what you selected…</string>
+    <string name="manual_checking">Checking what is already on the server…</string>
+    <string name="manual_nothing">Nothing to upload</string>
+    <string name="manual_busy">Another upload of this kind is still running. Wait for it to finish, or stop it from the notification.</string>
+    <string name="dest_lib_title">Where to upload: choose a library</string>
+    <string name="dest_here">Upload here</string>
+    <string name="dest_other_libs">‹  Other libraries</string>
+    <string name="dest_failed">Could not read: %1$s</string>
+    <string name="conflict_title">File already exists</string>
+    <string name="conflict_msg">“%1$s” already exists in %2$s on the server.\n\nCancel or skip: it is not uploaded.\nOverwrite: the file on the server is replaced.\nKeep both: the new one is saved as “%3$s”.</string>
+    <string name="conflict_skip">Skip</string>
+    <string name="conflict_overwrite">Overwrite</string>
+    <string name="conflict_keep">Keep both</string>
+    <string name="conflict_all">Same answer for the other %1$d files that already exist</string>
+    <string name="manual_confirm_title">Upload these files?</string>
+    <string name="manual_confirm_msg">%1$d files (%2$s) will be uploaded to %3$s.</string>
+    <string name="manual_confirm_overwrite">%1$d of them will replace a file with the same name on the server.</string>
+    <string name="manual_confirm_skipped">%1$d items were left out because the phone does not give their size.</string>
+    <string name="manual_confirm_yes">Upload</string>
+    <string name="manual_started">Upload started: %1$d files. Progress is in the notification.</string>
+    <string name="manual_started_wifi">Upload of %1$d files queued: it starts when the phone is on Wi-Fi (or turn off “Wi-Fi only”).</string>
+    <string name="manual_starting">Starting the upload…</string>
+    <string name="manual_progress">(%1$d/%2$d) %3$s</string>
+    <string name="manual_stopped">Upload stopped: %1$d of %2$d files uploaded</string>
+    <string name="manual_result_ok">%1$d files uploaded</string>
+    <string name="manual_result_fail">%1$d files uploaded, %2$d failed</string>
+
     <!-- actions -->
     <string name="signin_first">Sign in to Seafile first</string>
     <string name="upload_started">Started: checking files and uploading the missing ones</string>
